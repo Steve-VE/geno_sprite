@@ -6,7 +6,9 @@ window.addEventListener('load', () => {
 });
 
 window.addEventListener('keydown', (event) => {
-    const key = event.code;
+    console.log(event);
+    // const key = event.code;
+    const key = event.key;
     Object.values(inputs).forEach(input => {
         if (key === input.defaultKey) {
             event.preventDefault();
@@ -18,7 +20,8 @@ window.addEventListener('keydown', (event) => {
 });
 
 window.addEventListener('keyup', (event) => {
-    const key = event.code;
+    // const key = event.code;
+    const key = event.key;
     Object.values(inputs).forEach(input => {
         if (key === input.defaultKey) {
             event.preventDefault();

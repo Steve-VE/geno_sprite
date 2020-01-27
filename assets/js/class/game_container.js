@@ -13,6 +13,23 @@ class GameContainer {
         this.gameComponents = [];
 
         this.map = map;
+
+        // this.mode = 'overworld';
+        this.mode = 'fight';
+        this.battleZone = new BattleZone();
+
+        this.battleSprites = [];
+        this.battleSprites.push(
+            new SpriteSheet({
+                path: 'battlesprites/02.png',
+            }),
+            new SpriteSheet({
+                path: 'battlesprites/03.png',
+            }),
+            new SpriteSheet({
+                path: 'battlesprites/04.png',
+            })
+        );
     }
 
     start () {
@@ -22,13 +39,24 @@ class GameContainer {
     }
 
     update () {
-        gameContainer.drawGround();
-        for (const gameComponent of this.gameComponents) {
-            gameComponent.step();
+        if (this.mode === 'overworld') {
+            gameContainer.drawGround();
+            if (inputs.action.pressed) {
+                console.log('AAAAAAAH !!!!');
+            }
+            for (const gameComponent of this.gameComponents) {
+                gameComponent.step();
+            }
+            for (const gameComponent of this.gameComponents) {
+                gameComponent.draw();
+            }
+        } else if (this.mode === 'fight') {
+            gameContainer.drawBattleground();
         }
-        for (const gameComponent of this.gameComponents) {
-            gameComponent.draw();
-        }
+    }
+
+    drawBattleground () {
+        this.battleZone.draw();
     }
 
     drawGround () {

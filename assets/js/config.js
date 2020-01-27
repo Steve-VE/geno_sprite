@@ -1,3 +1,6 @@
+const urlPath = window.location.href;
+const url = new URL(urlPath);
+
 // Config
 const GAME = {
     TITLE: 'Geno Sprite',
@@ -5,8 +8,14 @@ const GAME = {
     HEIGHT: window.innerHeight,
     WIDTH: window.innerWidth,
     FRAMERATE: (1000 / 60),
+    DEBUG_MODE: Boolean(url.searchParams.get('debug')),
+    BATTLE_SPRITE_RATIO: 0.4,
 };
 const tileSize = 32;
+const fightTile = {
+    width: 240,
+    height: 120
+};
 
 const inputs = {
     down: {
@@ -23,6 +32,10 @@ const inputs = {
     },
     up: {
         defaultKey: 'ArrowUp',
+        pressed: false,
+    },
+    action: {
+        defaultKey: 'a',
         pressed: false,
     },
 };

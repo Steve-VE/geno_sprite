@@ -5,6 +5,23 @@ class Player extends GameComponent{
         this.wantToGoDown = false;
         this.wantToGoLeft = false;
         this.wantToGoRight = false;
+        this.width = tileSize * 1.5;
+        this.height = tileSize;
+        this.speed = 6;
+        this.frameCount = 0;
+        this.frameRate = 10;
+        this.spriteIndex = 0;
+        this.maxSpriteIndex = 3;
+        this.direction = 0;
+
+        this.sprite = new SpriteSheet({
+            path: 'characters/dump.png',
+            width: 128,
+            height: 192,
+            row: 4,
+            column: 4,
+            centerY: 180,
+        });
     }
 
     _beginStep () {
@@ -37,6 +54,7 @@ class Player extends GameComponent{
         let degree = 0;
         let speed = 0;
         if (this.wantToGoRight) {
+            this.direction = 1;
             speed = this.speed;
             degree = 0;
             if (this.wantToGoDown) {
@@ -45,6 +63,7 @@ class Player extends GameComponent{
                 degree += 45;
             }
         } else if (this.wantToGoLeft) {
+            this.direction = 3;
             speed = this.speed;
             degree = 180;
             if (this.wantToGoDown) {
@@ -53,9 +72,11 @@ class Player extends GameComponent{
                 degree -= 45;
             }
         } else if (this.wantToGoDown) {
+            this.direction = 0;
             degree = 270;
             speed = this.speed;
         } else if (this.wantToGoUp) {
+            this.direction = 2;
             degree = 90;
             speed = this.speed;
         }
@@ -118,6 +139,39 @@ class Player extends GameComponent{
                     this.speedY = other.bottom - this.y;
                 }
             }
+        }
+    }
+
+    draw () {
+        if (GAME.DEBUG_MODE) {
+            gameContainer.context.strokeStyle = 'rgba(255, 0, 0, 0.25)';
+            gameContainer.context.strokeRect(this.x, this.y, this.width, this.height);
+        }
+        gameContainer.context.drawImage(
+            this.sprite.image,
+            this.sprite.width * this.spriteIndex,
+            this.sprite.height * this.direction,
+            this.sprite.width, this.sprite.height,
+            this.x + ((this.width - 64) / 2),
+            this.y - (64),
+            64,
+            96
+        );
+    }
+
+    update () {
+        super.update();
+        if (this.speedX !== 0 || this.speedY !== 0) {
+            this.frameCount++;
+            if (this.frameCount > this.frameRate) {
+                this.frameCount = 0;
+                this.spriteIndex++;
+                if (this.spriteIndex > this.maxSpriteIndex) {
+                    this.spriteIndex = 0;
+                }
+            }
+        } else {
+            this.spriteIndex = 0;
         }
     }
 }
