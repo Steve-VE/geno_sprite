@@ -3,6 +3,15 @@ const gameContainer = new GameContainer();
 // Init
 window.addEventListener('load', () => {
     gameContainer.start();
+
+    window.addEventListener('click', (ev) => {
+        console.log(ev);
+        const dialogBox = document.createElement('div');
+        dialogBox.classList.add('dialog-box');
+        dialogBox.style.left = `${ev.pageX}px`;
+        dialogBox.style.top = `${ev.pageY}px`;
+        document.body.append(dialogBox);
+    });
 });
 
 window.addEventListener('keydown', (event) => {
