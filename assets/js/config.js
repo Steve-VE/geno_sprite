@@ -38,6 +38,10 @@ const inputs = {
         defaultKey: 'a',
         pressed: false,
     },
+    switch: {
+        defaultKey: 'Tab',
+        pressed: false,
+    },
 };
 inputs.down.opposite = inputs.up;
 inputs.up.opposite = inputs.down;
@@ -152,3 +156,6 @@ function mergeMap (maps) {
     }
     return mergedMap;
 }
+
+// Global variables
+const dialogBoxes = [];

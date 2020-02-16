@@ -5,12 +5,14 @@ class GenoSprite {
         this.position = {
             x: data.x || 0,
             y: data.y || 0,
-        }
+        };
         this.spriteIndex = data.spriteIndex || '01';
 
         this.sprite = new SpriteSheet({
             path: `battlesprites/${this.spriteIndex}.png`,
         });
+
+        this.playerTeam = data.playerTeam || false;
     }
 
     attachToTile (tile) {
@@ -19,6 +21,26 @@ class GenoSprite {
             y: tile.y,
         };
         tile.genoSprite = this;
+        if (this.playerTeam) {
+            this.displayDialogBox();
+        }
+    }
+
+    displayDialogBox () {
+        // Create the dialog box for the attack choice.
+        if (this.dialogBox) {
+            this.dialogBox.activate();
+        } else {
+            const dialogBox = new ChoiceBox(40, 40 + (dialogBoxes.length * 200));
+            dialogBox.addChoice('Attaquer');
+            dialogBox.addChoice('Se Défendre');
+            dialogBox.addChoice('Se Concentrer');
+            dialogBox.setTitle(this.name);
+            if (!activeDialogBox) {
+                dialogBox.activate();
+            }
+            dialogBoxes.push(DialogBox);
+        }
     }
 
     draw (shiftX, shiftY) {

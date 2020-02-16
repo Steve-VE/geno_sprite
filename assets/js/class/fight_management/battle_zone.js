@@ -11,20 +11,22 @@ class BattleZone {
         this.battlegroundWidth = fightTile.width * 6;
         this.battlegroundHeight = fightTile.height * 3;
 
-        this.addGenoSprite(2, 0, '01');
-        this.addGenoSprite(0, 1, '02');
-        this.addGenoSprite(1, 2, '03');
-        this.addGenoSprite(3, 0, '04');
-        this.addGenoSprite(4, 1, '04');
-        this.addGenoSprite(3, 2, '04');
+        this.addGenoSprite(2, 0, '01', 'PunchBoy');
+        this.addGenoSprite(0, 1, '02', 'Smarty');
+        this.addGenoSprite(1, 2, '03', 'MagicHat');
+        this.addGenoSprite(3, 0, '04', 'BiterBug');
+        this.addGenoSprite(4, 1, '04', 'BiterBug');
+        this.addGenoSprite(3, 2, '04', 'BiterBug');
     }
 
-    addGenoSprite (x, y, spriteIndex) {
+    addGenoSprite (x, y, spriteIndex, name) {
         const genoSprite = new GenoSprite({
             x: x,
             y: y,
+            name: name,
             spriteIndex: spriteIndex,
-        })
+            playerTeam: (x < 3),
+        });
         const tile = this.tiles[y][x];
         genoSprite.attachToTile(tile);
     }
