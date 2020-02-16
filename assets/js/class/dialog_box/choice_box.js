@@ -28,6 +28,7 @@ class Choice {
         this.html.addEventListener('click', () => {
             if (this.isActive) {
                 this.toggle();
+                gameContainer.battleZone.nextGenoSprite();
             }
         });
         this.parent = parent;
