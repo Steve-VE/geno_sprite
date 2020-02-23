@@ -1,7 +1,7 @@
 let activeDialogBox;
 
 class DialogBox {
-    constructor (x, y, isDisplayed=true) {
+    constructor (x, y, isDisplayed=true, owner) {
         this.html = document.createElement('div');
         this.html.classList.add('dialog-box');
         this.place(x, y);
@@ -11,6 +11,11 @@ class DialogBox {
         }
         this.deactivate();
         this.title = '';
+
+        if (owner) {
+            this.setTitle(owner.name);
+            this.owner = owner;
+        }
     }
 
     activate () {
@@ -55,6 +60,11 @@ class DialogBox {
         this.title = title;
         title = document.createElement('h3');
         title.innerHTML = this.title;
+
+        title.addEventListener('click', () => {
+            console.log('Click on ' + this.owner.name);
+        });
+
         this.html.insertBefore(title, this.html.firstChild);
     }
 

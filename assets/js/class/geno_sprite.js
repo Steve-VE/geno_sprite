@@ -1,4 +1,11 @@
 class GenoSprite {
+    /**
+     * @param {object} data
+     * @param {string} data.name
+     * @param {number} data.x
+     * @param {number} data.y
+     * @param {number} data.spriteIndex
+     */
     constructor (data) {
         data = data || {};
         this.name = data.name || 'unnamed';
@@ -26,20 +33,28 @@ class GenoSprite {
         }
     }
 
+    /**
+     * Creates and displays the `DialogBox` to make the attac choice.
+     */
     displayDialogBox () {
-        // Create the dialog box for the attack choice.
+        // If the dialog box already exists, just activate it...
         if (this.dialogBox) {
             this.dialogBox.activate();
-        } else {
-            const dialogBox = new ChoiceBox(40, 40 + (dialogBoxes.length * 200));
+        } else { // ...otherwise, creates a new one.
+            const dialogBox = new ChoiceBox(
+                40,
+                40 + (dialogBoxes.length * 200),
+                true,
+                this
+            );
             dialogBox.addChoice('Attaquer');
             dialogBox.addChoice('Se Défendre');
             dialogBox.addChoice('Se Concentrer');
-            dialogBox.setTitle(this.name);
             if (!activeDialogBox) {
                 dialogBox.activate();
             }
             dialogBoxes.push(DialogBox);
+            this.dialogBox = dialogBox;
         }
     }
 

@@ -32,10 +32,10 @@ class BattleZone {
         if (teamIndex === 0 && !this.activeGenoSprite) {
             genoSprite.isActive = true;
             this.activeGenoSprite = genoSprite;
+            this.activeTile = this.tiles[y][x];
         }
         this.team[teamIndex].push(genoSprite);
-        const tile = this.tiles[y][x];
-        genoSprite.attachToTile(tile);
+        genoSprite.attachToTile(this.tiles[y][x]);
     }
 
     draw () {
@@ -52,7 +52,41 @@ class BattleZone {
         }
     }
 
+    /**
+     * Unselects the current selected GenoSprite and selects the next one.
+     */
     nextGenoSprite () {
         this.activeGenoSprite.isActive = false;
+        let x = this.activeTile.x;
+        let y = this.activeTile.y;
+
+        const genoSprite = this.searchNextGenoSprite(x, y);
+        if (genoSprite) {
+            this.selectGenoSprite(genoSprite);
+        }
+    }
+
+    searchNextGenoSprite (x, y) {
+        x += 1;
+        if (x >= this.tiles[y].length) {
+            x = 0;
+            y += 1;
+        }
+        if (y >= this.tiles.length) {
+            return undefined;
+        }
+        const tile = this.tiles[y][x];
+        if (tile.genoSprite && tile.genoSprite.playerTeam) {
+            return tile.genoSprite;
+        } else {
+            return this.searchNextGenoSprite(x, y);
+        }
+    }
+
+    selectGenoSprite (genoSprite) {
+        this.activeGenoSprite = genoSprite;
+        this.activeGenoSprite.isActive = true;
+        this.activeGenoSprite.displayDialogBox();
+        this.activeTile = this.tiles[this.activeGenoSprite.position.y][this.activeGenoSprite.position.x];
     }
 }

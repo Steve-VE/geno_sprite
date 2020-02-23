@@ -1,7 +1,7 @@
 
 class ChoiceBox extends DialogBox {
     constructor (x, y, isDisplayed=true) {
-        super(x, y, isDisplayed);
+        super(...arguments);
         this.list = document.createElement('ul');
         this.choices = [];
         this.html.appendChild(this.list);
@@ -25,6 +25,8 @@ class Choice {
         this.text = text;
         this.html = document.createElement('li');
         this.html.innerHTML = this.text;
+        // When player clicks on the choice, unselects the DialogBox and go to
+        // the next GenoSprite.
         this.html.addEventListener('click', () => {
             if (this.isActive) {
                 this.toggle();
