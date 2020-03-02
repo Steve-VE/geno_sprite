@@ -8,7 +8,8 @@ class GenoSprite {
      */
     constructor (data) {
         data = data || {};
-        this.name = data.name || 'unnamed';
+        this.specie = specieList[data.specie];
+        this.name = data.name || this.specie.name || 'unnamed';
         this.position = {
             x: data.x || 0,
             y: data.y || 0,
@@ -20,6 +21,7 @@ class GenoSprite {
         });
 
         this.playerTeam = data.playerTeam || false;
+        this.skill = [];
     }
 
     attachToTile (tile) {
@@ -47,9 +49,10 @@ class GenoSprite {
                 true,
                 this
             );
-            dialogBox.addChoice('Attaquer');
-            dialogBox.addChoice('Se Défendre');
-            dialogBox.addChoice('Se Concentrer');
+            for (const skillName of this.specie.defaultSkillList) {
+                const skill = skillList[skillName];
+                dialogBox.addChoice(skill.name);
+            }
             if (!activeDialogBox) {
                 dialogBox.activate();
             }

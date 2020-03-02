@@ -33,6 +33,7 @@ $color-hover: rgb(150, 50, 25);
             padding: 8px;
 
             li {
+                min-width: 200px;
                 border: 1px solid;
                 border-top: none;
                 padding: 8px 16px;
