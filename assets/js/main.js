@@ -1,12 +1,19 @@
 let gameContainer;
+let clickableElement = [];
 
 // Init
 window.addEventListener('load', () => {
-    gameContainer = new GameContainer();
-    gameContainer.start();
+    new GameContainer();
 
     window.addEventListener('click', (ev) => {
         console.log(ev);
+        const x = ev.clientX;
+        const y = ev.clientY;
+        for (const element of clickableElement) {
+            if (element.isClickedOn(x, y)) {
+                element.onClick();
+            }
+        }
     });
 
     window.addEventListener('keydown', (event) => {

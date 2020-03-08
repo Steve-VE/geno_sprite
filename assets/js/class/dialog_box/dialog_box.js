@@ -63,6 +63,7 @@ class DialogBox {
 
         title.addEventListener('click', () => {
             console.log('Click on ' + this.owner.name);
+            this.owner.displayDialogBox();
         });
 
         this.html.insertBefore(title, this.html.firstChild);

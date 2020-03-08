@@ -1,5 +1,6 @@
 class GameContainer {
     constructor () {
+        gameContainer = this;
         this.canvas = document.createElement('canvas');
         this.canvas.id = `gameContainer`;
         this.canvas.height = GAME.HEIGHT;
@@ -16,20 +17,11 @@ class GameContainer {
 
         // this.mode = 'overworld';
         this.mode = 'fight';
-        this.battleZone = new BattleZone();
+        if (this.mode === 'fight') {
+            new BattleZone();
+        }
 
-        this.battleSprites = [];
-        this.battleSprites.push(
-            new SpriteSheet({
-                path: 'battlesprites/02.png',
-            }),
-            new SpriteSheet({
-                path: 'battlesprites/03.png',
-            }),
-            new SpriteSheet({
-                path: 'battlesprites/04.png',
-            })
-        );
+        gameContainer.start();
     }
 
     start () {

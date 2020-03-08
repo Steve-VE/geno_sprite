@@ -14,6 +14,10 @@ class GenoSprite {
             x: data.x || 0,
             y: data.y || 0,
         };
+        this.x = 0;
+        this.y = 0;
+        this.width = 0;
+        this.height = 0;
         this.spriteIndex = data.spriteIndex || '01';
 
         this.sprite = new SpriteSheet({
@@ -22,6 +26,7 @@ class GenoSprite {
 
         this.playerTeam = data.playerTeam || false;
         this.skill = [];
+        clickableElement.push(this);
     }
 
     attachToTile (tile) {
@@ -51,7 +56,9 @@ class GenoSprite {
             );
             for (const skillName of this.specie.defaultSkillList) {
                 const skill = skillList[skillName];
-                dialogBox.addChoice(skill.name);
+                dialogBox.addChoice({
+                    skill: skill,
+                });
             }
             if (!activeDialogBox) {
                 dialogBox.activate();
@@ -87,5 +94,27 @@ class GenoSprite {
             spriteWidth,
             spriteHeight
         );
+        this.x = posX;
+        this.y = posY;
+        this.width = spriteWidth;
+        this.height = spriteHeight;
+    }
+
+
+    isClickedOn (x, y) {
+        if (x < this.x || x > (this.x + this.width) || y < this.y || y > (this.y + this.height)) {
+            return false;
+        }
+        return true;
+    }
+
+    onClick () {
+        if (gameContainer.battleZone.waitingSkill) {
+            // Target a GenoSprite for a skill.
+            gameContainer.battleZone.waitingSkill.resolveSelection(this);
+        } else if (this.playerTeam) {
+            // Click on a player's GenoSprite.
+            this.displayDialogBox();
+        }
     }
 }

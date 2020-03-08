@@ -1,5 +1,7 @@
 class BattleZone {
     constructor () {
+        gameContainer.battleZone = this;
+
         this.tiles = [];
         for (let y = 0; y < 3; y++) {
             this.tiles[y] = [];
@@ -10,7 +12,6 @@ class BattleZone {
         }
         this.battlegroundWidth = fightTile.width * 6;
         this.battlegroundHeight = fightTile.height * 3;
-
         this.team = [[], []];
         this.addGenoSprite(2, 0, '01', 'punch_boy');
         this.addGenoSprite(0, 1, '02', 'smarty');

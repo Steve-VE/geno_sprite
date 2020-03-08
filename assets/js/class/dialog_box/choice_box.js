@@ -8,8 +8,8 @@ class ChoiceBox extends DialogBox {
         this.html.classList.add('choice-box');
     }
 
-    addChoice (text) {
-        new Choice(this, text);
+    addChoice (params) {
+        new Choice(this, params);
     }
 
     unselectChoice () {
@@ -21,8 +21,9 @@ class ChoiceBox extends DialogBox {
 
 
 class Choice {
-    constructor (parent, text) {
-        this.text = text;
+    constructor (parent, params) {
+        this.skill = params.skill;
+        this.text = this.skill.name;
         this.html = document.createElement('li');
         this.html.innerHTML = this.text;
         // When player clicks on the choice, unselects the DialogBox and go to
@@ -30,7 +31,6 @@ class Choice {
         this.html.addEventListener('click', () => {
             if (this.isActive) {
                 this.toggle();
-                gameContainer.battleZone.nextGenoSprite();
             }
         });
         this.parent = parent;
@@ -54,6 +54,11 @@ class Choice {
         this.parent.unselectChoice();
         this.isSelected = true;
         this.html.classList.add('selected');
+
+        const skillProm = this.skill.isSelected();
+        skillProm.then(() => {
+            gameContainer.battleZone.nextGenoSprite();
+        });
     }
 
     unselect () {
