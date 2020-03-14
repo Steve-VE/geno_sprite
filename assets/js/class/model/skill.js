@@ -1,58 +1,90 @@
 const skillList = {};
 
 class Skill {
-    constructor (techName, name, categ, numberOfTarget=1) {
-        this.techName = techName;
-        this.name = name;
-        this.categ = categ;
-        this.numberOfTarget = numberOfTarget;
+    constructor (params) {
+        this.techName = params.techName;
+        this.name = params.name;
+        this.categ = params.categ;
+        this.numberOfTarget = params.numberOfTarget || 1;
+        this.description = params.description;
+        this.cost = params.cost;
+        this.power = params.power;
+        this.numberOfTarget = params.numberOfTarget || 1;
 
         skillList[this.techName] = this;
     }
 
     /**
      * Is called when the skill is selected in the combat menu.
+     *
+     * @param {GenoSprite} caster
      */
-    isSelected () {
+    isSelected (caster) {
         gameContainer.battleZone.waitingSkill = this;
         const prom = new Promise((resolve, reject) => {
             // Waiting for a target
             this.resolveSelection = resolve;
+            this.rejectSelection = reject;
         });
-        prom.then((target) => {
-            this.target = target;
+        return prom.then((target) => {
             if (gameContainer.battleZone.waitingSkill === this) {
                 gameContainer.battleZone.waitingSkill = undefined;
             }
+            return {
+                caster: caster,
+                skill: this,
+                target: target,
+            };
         });
-        return prom;
     }
 }
 
-new Skill('bite', 'Bite', 'physical');
-new Skill('psy_shock', 'Psy Shock', 'mental');
-new Skill('punch', 'Punch', 'physical');
-new Skill('sparkle_pop', 'Sparkle Pop', 'magic');
+
+if (GAME.DEBUG_MODE) {
+    console.log(
+        '%c-- Loading Skills',
+        'font-weight: bold; font-size: 1.2em;'
+    );
+}
+for (const attack of Object.entries(SKILL_DATA.ATTACK)) {
+    const data = attack[1];
+    data.techName = attack[0];
+
+    if (GAME.DEBUG_MODE) {
+        console.groupCollapsed(`[${data.techName}] data`);
+        console.table(data);
+        console.groupEnd();
+    }
+    new Skill(data);
+}
 
 class SelfTargetingSkill extends Skill {
+    constructor (params) {
+        super(params);
+        this.numberOfTarget = 0;
+    }
+
     /**
-     * Is called when the skill is selected in the combat menu.
+     * @override
      */
-    isSelected () {
-        gameContainer.battleZone.waitingSkill = this;
-        const prom = new Promise((resolve, reject) => {
-            // Waiting for a target
-            this.resolveSelection = resolve;
+    isSelected (caster) {
+        return Promise.resolve({
+            caster: caster,
+            skill: this,
+            target: caster,
         });
-        prom.then(() => {
-            if (gameContainer.battleZone.waitingSkill === this) {
-                gameContainer.battleZone.waitingSkill = undefined;
-            }
-        });
-        return prom;
     }
 }
 
-new Skill('defend', 'Defend', 'physical');
-new Skill('energizer', 'Energizer', 'magic');
-new Skill('focus', 'Focus', 'mental');
+
+for (const attack of Object.entries(SKILL_DATA.SELF)) {
+    const data = attack[1];
+    data.techName = attack[0];
+
+    if (GAME.DEBUG_MODE) {
+        console.groupCollapsed(`[${data.techName}] data`);
+        console.table(data);
+        console.groupEnd();
+    }
+    new SelfTargetingSkill(data);
+}

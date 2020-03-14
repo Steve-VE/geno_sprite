@@ -1,3 +1,5 @@
+let __geno_sprite_count = 0;
+
 class GenoSprite {
     /**
      * @param {object} data
@@ -9,7 +11,11 @@ class GenoSprite {
     constructor (data) {
         data = data || {};
         this.specie = specieList[data.specie];
+        this.stat = this.specie.copyStat();
+
         this.name = data.name || this.specie.name || 'unnamed';
+        this.id = this.getUniqId();
+        console.log(this.id);
         this.position = {
             x: data.x || 0,
             y: data.y || 0,
@@ -106,6 +112,13 @@ class GenoSprite {
             return false;
         }
         return true;
+    }
+
+
+    getUniqId () {
+        __geno_sprite_count++;
+        const number = String(__geno_sprite_count).padStart(4, 0);
+        return `${this.specie.techName}_${number}`;
     }
 
     onClick () {

@@ -12,6 +12,7 @@ class BattleZone {
         }
         this.battlegroundWidth = fightTile.width * 6;
         this.battlegroundHeight = fightTile.height * 3;
+        this.skillStack = [];
         this.team = [[], []];
         this.addGenoSprite(2, 0, '01', 'punch_boy');
         this.addGenoSprite(0, 1, '02', 'smarty');
@@ -37,6 +38,12 @@ class BattleZone {
         }
         this.team[teamIndex].push(genoSprite);
         genoSprite.attachToTile(this.tiles[y][x]);
+    }
+
+    addSkillToStack (skill) {
+        const casterId = skill.caster.id;
+        this.skillStack[casterId] = skill;
+        console.log(this.skillStack);
     }
 
     draw () {

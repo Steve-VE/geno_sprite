@@ -25,9 +25,10 @@ class Choice {
         this.skill = params.skill;
         this.text = this.skill.name;
         this.html = document.createElement('li');
+        const description = `${this.skill.name}\n${this.skill.description}\n\nCost: ${this.skill.cost}PE`;
+        this.html.title = description;
         this.html.innerHTML = this.text;
-        // When player clicks on the choice, unselects the DialogBox and go to
-        // the next GenoSprite.
+
         this.html.addEventListener('click', () => {
             if (this.isActive) {
                 this.toggle();
@@ -55,8 +56,11 @@ class Choice {
         this.isSelected = true;
         this.html.classList.add('selected');
 
-        const skillProm = this.skill.isSelected();
-        skillProm.then(() => {
+        // When player clicks on the choice and made the selection, unselects
+        // the DialogBox and goes to the next GenoSprite.
+        const skillProm = this.skill.isSelected(this.parent.owner);
+        skillProm.then((skill) => {
+            gameContainer.battleZone.addSkillToStack(skill);
             gameContainer.battleZone.nextGenoSprite();
         });
     }

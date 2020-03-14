@@ -10,6 +10,21 @@ class GenoSpriteSpecie {
 
         specieList[this.techName] = this;
     }
+
+    copyStat () {
+        return Object.assign({
+            pvMax: this.stat.pv,
+            peMax: this.stat.pe,
+        }, this.stat,
+        {
+            pe: (this.stat.pe * 0.2),
+        });
+    }
+
+    static getStat (name) {
+        const specie = specieList[name];
+        return Object.assign({}, specie.stat);
+    }
 }
 
 
@@ -20,11 +35,11 @@ if (GAME.DEBUG_MODE) {
     );
 }
 for (const specie of Object.entries(SPECIE_DATA)) {
-    const techName = specie[0];
     const data = specie[1];
+    data.techName = specie[0];
 
     if (GAME.DEBUG_MODE) {
-        console.groupCollapsed(`[${techName}] data`);
+        console.groupCollapsed(`[${data.techName}] data`);
         console.log('Stats:');
         console.table(data.stat);
         console.log('Skills:');
@@ -32,10 +47,5 @@ for (const specie of Object.entries(SPECIE_DATA)) {
         console.groupEnd();
     }
 
-    new GenoSpriteSpecie({
-        techName: techName,
-        name: data.name,
-        stat: data.stat,
-        skill: data.skill,
-    });
+    new GenoSpriteSpecie(data);
 }
