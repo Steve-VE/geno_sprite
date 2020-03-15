@@ -10,21 +10,6 @@ class GenoSpriteSpecie {
 
         specieList[this.techName] = this;
     }
-
-    copyStat () {
-        return Object.assign({
-            pvMax: this.stat.pv,
-            peMax: this.stat.pe,
-        }, this.stat,
-        {
-            pe: (this.stat.pe * 0.2),
-        });
-    }
-
-    static getStat (name) {
-        const specie = specieList[name];
-        return Object.assign({}, specie.stat);
-    }
 }
 
 

@@ -48,6 +48,7 @@ class GameContainer {
     }
 
     drawBattleground () {
+        this.battleZone.update();
         this.battleZone.draw();
     }
 

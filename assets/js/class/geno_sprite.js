@@ -11,7 +11,7 @@ class GenoSprite {
     constructor (data) {
         data = data || {};
         this.specie = specieList[data.specie];
-        this.stat = this.specie.copyStat();
+        this.setStats();
 
         this.name = data.name || this.specie.name || 'unnamed';
         this.id = this.getUniqId();
@@ -31,7 +31,10 @@ class GenoSprite {
         });
 
         this.playerTeam = data.playerTeam || false;
-        this.skill = [];
+        this.skills = [];
+        for (const skillName of this.specie.defaultSkillList) {
+            this.skills.push(skillList[skillName]);
+        }
         clickableElement.push(this);
     }
 
@@ -43,6 +46,24 @@ class GenoSprite {
         tile.genoSprite = this;
         if (this.playerTeam) {
             this.displayDialogBox();
+        }
+    }
+
+    choiceSkill () {
+        const availableSkills = [];
+        for (const skill of this.skills) {
+            if (skill.cost < this.pe) {
+                availableSkills.push(skill);
+            }
+        }
+
+        if (availableSkills.length === 1) {
+            return availableSkills[0];
+        } else if (availableSkills.length > 1) {
+            const skillIndex = Math.floor(Math.random() * (availableSkills.length + 1));
+            return availableSkills[skillIndex];
+        } else {
+            return skillList.do_nothing;
         }
     }
 
@@ -60,8 +81,7 @@ class GenoSprite {
                 true,
                 this
             );
-            for (const skillName of this.specie.defaultSkillList) {
-                const skill = skillList[skillName];
+            for (const skill of this.skills) {
                 dialogBox.addChoice({
                     skill: skill,
                 });
@@ -90,6 +110,16 @@ class GenoSprite {
                 spriteHeight
             );
         }
+        // Draws the shadow.
+        gameContainer.context.fillStyle = 'rgba(0, 0, 0, 0.22';
+        gameContainer.context.beginPath();
+        gameContainer.context.ellipse(
+            shiftX + (this.position.x * fightTile.width) + (fightTile.width / 2),
+            shiftY + (this.position.y * fightTile.height) + (fightTile.height / 1.5),
+            40, 20,
+            0, 0, 360);
+        gameContainer.context.fill();
+        // Draws the sprite.
         gameContainer.context.drawImage(
             this.sprite.image,
             0, 0,
@@ -104,6 +134,17 @@ class GenoSprite {
         this.y = posY;
         this.width = spriteWidth;
         this.height = spriteHeight;
+
+        // Draw PV/PE bars.
+        gameContainer.context.fillStyle = '#333';
+        gameContainer.context.fillRect(posX, posY - 40, 80, 40);
+        gameContainer.context.font = '16px "Squada One"';
+        gameContainer.context.fillText(`${this.pv} /${this.pvMax} PV`, posX + 84, posY - 25);
+        gameContainer.context.fillText(`${this.pe} /${this.peMax} PE`, posX + 84, posY - 5);
+        gameContainer.context.fillStyle = '#8ee06d';
+        gameContainer.context.fillRect(posX, posY - 40, (80 / this.pvMax * this.pv), 20);
+        gameContainer.context.fillStyle = '#7becff';
+        gameContainer.context.fillRect(posX, posY - 20, (80 / this.peMax * this.pe), 20);
     }
 
 
@@ -124,10 +165,31 @@ class GenoSprite {
     onClick () {
         if (gameContainer.battleZone.waitingSkill) {
             // Target a GenoSprite for a skill.
-            gameContainer.battleZone.waitingSkill.resolveSelection(this);
+            if (gameContainer.battleZone.activeGenoSprite === this) {
+                if (gameContainer.battleZone.waitingSkill.canSelfTarget) {
+                    gameContainer.battleZone.waitingSkill.resolveSelection(this);
+                }
+            } else {
+                gameContainer.battleZone.waitingSkill.resolveSelection(this);
+            }
         } else if (this.playerTeam) {
             // Click on a player's GenoSprite.
             this.displayDialogBox();
         }
+    }
+
+    setStats () {
+        const stat = this.specie.stat;
+        this.pvMax = stat.pv;
+        this.pv = this.pvMax;
+        this.peMax = stat.pe;
+        this.pe = this.peMax * 0.2;
+
+        this.atk = stat.atk;
+        this.def = stat.def;
+        this.psy = stat.psy;
+        this.mgc = stat.mgc;
+        this.spd = stat.spd;
+        this.lck = stat.lck;
     }
 }

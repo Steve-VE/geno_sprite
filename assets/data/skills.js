@@ -3,6 +3,7 @@ const SKILL_DATA = {
     "ATTACK": {
         "bite": {
             "name": "Bite",
+            "icon": "👄",
             "categ": "physical",
             "cost": 5,
             "power": 8,
@@ -10,6 +11,7 @@ const SKILL_DATA = {
         },
         "psy_shock": {
             "name": "Psy Shock",
+            "icon" : "🧠",
             "categ": "mental",
             "cost": 4,
             "power": 6,
@@ -17,6 +19,7 @@ const SKILL_DATA = {
         },
         "punch": {
             "name": "Punch",
+            "icon": "✊",
             "categ": "physical",
             "cost": 4,
             "power": 6,
@@ -24,27 +27,39 @@ const SKILL_DATA = {
         },
         "sparkle_pop": {
             "name": "Sparkle Pop",
+            "icon": "🌟",
             "categ": "magic",
             "cost": 4,
             "power": 6,
-            "description": "Throws a weak magic projectile to hurt the target."
+            "description": "Throws a weak magic projectile to hurt the target.",
+            "options": {
+                "selfTargeting": true
+            }
         }
     },
     "SELF": {
         "defend": {
             "name": "Defend",
+            "icon": "🛡",
             "categ": "physical",
             "cost": 2,
             "description": "The user protects himself to lower next damage.\nIneffective against mental attacks."
         },
+        "do_nothing": {
+            "name": "Do Nothing",
+            "icon": "🤷",
+            "description": "Literally."
+        },
         "energizer": {
             "name": "Energizer",
+            "icon": "🔌",
             "categ": "magic",
             "cost": 2,
             "description": "The user condenses surrounding magic to increase its Energy Points."
         },
         "focus": {
             "name": "Focus",
+            "icon": "🧘",
             "categ": "mental",
             "cost": 2,
             "description": "The user focus its mind to get a mental boost until next turn."

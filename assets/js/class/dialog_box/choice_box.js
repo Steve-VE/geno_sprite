@@ -23,7 +23,7 @@ class ChoiceBox extends DialogBox {
 class Choice {
     constructor (parent, params) {
         this.skill = params.skill;
-        this.text = this.skill.name;
+        this.text = `${this.skill.icon} ${this.skill.name}`;
         this.html = document.createElement('li');
         const description = `${this.skill.name}\n${this.skill.description}\n\nCost: ${this.skill.cost}PE`;
         this.html.title = description;

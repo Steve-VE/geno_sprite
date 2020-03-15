@@ -2,14 +2,16 @@ const skillList = {};
 
 class Skill {
     constructor (params) {
+        const options = params.options || {};
         this.techName = params.techName;
+        this.icon = params.icon;
         this.name = params.name;
         this.categ = params.categ;
-        this.numberOfTarget = params.numberOfTarget || 1;
         this.description = params.description;
         this.cost = params.cost;
         this.power = params.power;
         this.numberOfTarget = params.numberOfTarget || 1;
+        this.canSelfTarget = options.selfTargeting || false;
 
         skillList[this.techName] = this;
     }
@@ -19,23 +21,31 @@ class Skill {
      *
      * @param {GenoSprite} caster
      */
-    isSelected (caster) {
-        gameContainer.battleZone.waitingSkill = this;
-        const prom = new Promise((resolve, reject) => {
-            // Waiting for a target
-            this.resolveSelection = resolve;
-            this.rejectSelection = reject;
-        });
-        return prom.then((target) => {
-            if (gameContainer.battleZone.waitingSkill === this) {
-                gameContainer.battleZone.waitingSkill = undefined;
-            }
-            return {
+    isSelected (caster, target) {
+        if (target) {
+            return Promise.resolve({
                 caster: caster,
                 skill: this,
                 target: target,
-            };
-        });
+            });
+        } else {
+            gameContainer.battleZone.waitingSkill = this;
+            const prom = new Promise((resolve, reject) => {
+                // Waiting for a target
+                this.resolveSelection = resolve;
+                this.rejectSelection = reject;
+            });
+            return prom.then((target) => {
+                if (gameContainer.battleZone.waitingSkill === this) {
+                    gameContainer.battleZone.waitingSkill = undefined;
+                }
+                return {
+                    caster: caster,
+                    skill: this,
+                    target: target,
+                };
+            });
+        }
     }
 }
 
@@ -62,6 +72,7 @@ class SelfTargetingSkill extends Skill {
     constructor (params) {
         super(params);
         this.numberOfTarget = 0;
+        this.canSelfTarget = true;
     }
 
     /**
