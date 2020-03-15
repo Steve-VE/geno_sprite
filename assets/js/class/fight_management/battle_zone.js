@@ -12,14 +12,17 @@ class BattleZone {
         }
         this.battlegroundWidth = fightTile.width * 6;
         this.battlegroundHeight = fightTile.height * 3;
-        this.skillStack = [];
+        this.skillStack = {};
         this.team = [[], []];
+        this.nbreOfActiveGenoSprites = 0;
         this.addGenoSprite(2, 0, '01', 'punch_boy');
         this.addGenoSprite(0, 1, '02', 'smarty');
         this.addGenoSprite(1, 2, '03', 'magic_hat');
         this.addGenoSprite(3, 0, '04', 'biter_bug');
         this.addGenoSprite(4, 1, '04', 'biter_bug');
         this.addGenoSprite(3, 2, '04', 'biter_bug');
+
+        this.opponentsMakeChoice();
     }
 
     addGenoSprite (x, y, spriteIndex, name) {
@@ -36,6 +39,7 @@ class BattleZone {
             this.activeGenoSprite = genoSprite;
             this.activeTile = this.tiles[y][x];
         }
+        this.nbreOfActiveGenoSprites++;
         this.team[teamIndex].push(genoSprite);
         genoSprite.attachToTile(this.tiles[y][x]);
     }
@@ -74,6 +78,27 @@ class BattleZone {
         }
     }
 
+    opponentsMakeChoice () {
+        const playerTeam = this.team[0];
+        const opponentTeam = this.team[1];
+        for (const caster of opponentTeam) {
+            const selectedSkill = caster.choiceSkill();
+
+            if (selectedSkill.constructor.name === 'SelfTargetingSkill') {
+                // Self targeting skill, easy to define.
+                selectedSkill.isSelected(caster).then((result) => {
+                    this.skillStack[caster.id] = result;
+                });
+            } else {
+                // For other skills, needs target(s) !
+                const targetIndex = Math.floor(Math.random() * (playerTeam.length + 1));
+                selectedSkill.isSelected(caster, playerTeam[targetIndex]).then((result) => {
+                    this.skillStack[caster.id] = result;
+                });
+            }
+        }
+    }
+
     searchNextGenoSprite (x, y) {
         x += 1;
         if (x >= this.tiles[y].length) {
@@ -96,5 +121,13 @@ class BattleZone {
         this.activeGenoSprite.isActive = true;
         this.activeGenoSprite.displayDialogBox();
         this.activeTile = this.tiles[this.activeGenoSprite.position.y][this.activeGenoSprite.position.x];
+    }
+
+    update () {
+        if (Object.keys(this.skillStack).length < this.nbreOfActiveGenoSprites) {
+            // Skill selection state.
+        } else {
+            // Resolves skills' stack.
+        }
     }
 }
