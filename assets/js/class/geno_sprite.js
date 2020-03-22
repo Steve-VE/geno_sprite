@@ -60,7 +60,7 @@ class GenoSprite {
         if (availableSkills.length === 1) {
             return availableSkills[0];
         } else if (availableSkills.length > 1) {
-            const skillIndex = Math.floor(Math.random() * (availableSkills.length + 1));
+            const skillIndex = Math.floor(Math.random() * availableSkills.length);
             return availableSkills[skillIndex];
         } else {
             return skillList.do_nothing;
@@ -147,6 +147,11 @@ class GenoSprite {
         gameContainer.context.fillRect(posX, posY - 20, (80 / this.peMax * this.pe), 20);
     }
 
+    hideDialogBox () {
+        if (this.dialogBox) {
+            this.dialogBox.remove();
+        }
+    }
 
     isClickedOn (x, y) {
         if (x < this.x || x > (this.x + this.width) || y < this.y || y > (this.y + this.height)) {
@@ -176,6 +181,11 @@ class GenoSprite {
             // Click on a player's GenoSprite.
             this.displayDialogBox();
         }
+    }
+
+    resetDialogBox () {
+        this.dialogBox.unselectChoice();
+        this.displayDialogBox();
     }
 
     setStats () {

@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
         const key = event.key;
         Object.values(inputs).forEach(input => {
             if (key === input.defaultKey) {
-                event.preventDefault();
+                // event.preventDefault();
                 if (!input.pressed) {
                     input.pressed = true;
                 }
@@ -35,7 +35,7 @@ window.addEventListener('load', () => {
         const key = event.key;
         Object.values(inputs).forEach(input => {
             if (key === input.defaultKey) {
-                event.preventDefault();
+                // event.preventDefault();
                 if (input.pressed) {
                     input.pressed = false;
                 }

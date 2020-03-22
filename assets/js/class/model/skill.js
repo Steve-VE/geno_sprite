@@ -17,9 +17,53 @@ class Skill {
     }
 
     /**
+     * Computes and returns the damage made by the caster to the target.
+     *
+     * @param {GenoSprite} caster
+     * @param {GenoSprite} target
+     * @returns {integer}
+     */
+    computeDamage (caster, target) {
+        let coef = 1;
+        if (this.categ === 'cerebral') {
+            if (caster.psy > target.psy) {
+                coef = 1.2;
+            } else if (caster.psy < target.psy) {
+                coef = 0.8;
+            }
+            return Math.round(this.power * coef);
+        } else if (this.categ === 'magic') {
+            if (caster.atk > target.def) {
+                coef = 1.2;
+            } else if (caster.atk < target.def) {
+                coef = 0.8;
+            }
+            return Math.round(this.power * coef);
+        } else if (this.categ === 'physical') {
+            const targetDef = (target.def * 0.3) + (target.mgc * 0.7);
+            if (caster.mgc > targetDef) {
+                coef = 1.2;
+            } else if (caster.mgc < targetDef) {
+                coef = 0.8;
+            }
+            return Math.round(this.power * coef);
+        }
+    }
+
+    /**
+     * Returns how fast this skill wil be cast .
+     *
+     * @param {GenoSprite} caster
+     */
+    defineSpeed (caster) {
+        return caster.spd;
+    }
+
+    /**
      * Is called when the skill is selected in the combat menu.
      *
      * @param {GenoSprite} caster
+     * @param {GenoSprite} target
      */
     isSelected (caster, target) {
         if (target) {
@@ -46,6 +90,14 @@ class Skill {
                 };
             });
         }
+    }
+
+    resolveEffect (caster, target) {
+        if (this.cost) {
+            caster.pe -= this.cost;
+        }
+        target.pv -= this.computeDamage(...arguments);
+        return Promise.resolve();
     }
 }
 
@@ -74,6 +126,11 @@ class SelfTargetingSkill extends Skill {
         this.numberOfTarget = 0;
         this.canSelfTarget = true;
     }
+
+    /**
+     * @override
+     */
+    computeDamage () { return 0; }
 
     /**
      * @override

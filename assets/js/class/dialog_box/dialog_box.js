@@ -25,6 +25,7 @@ class DialogBox {
         this.isActive = true;
         this.html.classList.remove('inactive');
         activeDialogBox = this;
+        this.display();
     }
 
     deactivate () {

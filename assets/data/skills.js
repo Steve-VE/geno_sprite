@@ -12,7 +12,7 @@ const SKILL_DATA = {
         "psy_shock": {
             "name": "Psy Shock",
             "icon" : "🧠",
-            "categ": "mental",
+            "categ": "cerebral",
             "cost": 4,
             "power": 6,
             "description": "Uses psychic power to hurt the target."
@@ -43,7 +43,7 @@ const SKILL_DATA = {
             "icon": "🛡",
             "categ": "physical",
             "cost": 2,
-            "description": "The user protects himself to lower next damage.\nIneffective against mental attacks."
+            "description": "The user protects himself to lower next damage.\nIneffective against cerebral attacks."
         },
         "do_nothing": {
             "name": "Do Nothing",
@@ -60,9 +60,9 @@ const SKILL_DATA = {
         "focus": {
             "name": "Focus",
             "icon": "🧘",
-            "categ": "mental",
+            "categ": "cerebral",
             "cost": 2,
-            "description": "The user focus its mind to get a mental boost until next turn."
+            "description": "The user focus its mind to get a cerebral boost until next turn."
         },
     }
 };
