@@ -24,6 +24,7 @@ class BattleZone {
         this.addGenoSprite(3, 2, '04', 'biter_bug');
 
         this.opponentsMakeChoice();
+        this.needToBeRedraw = true;
     }
 
     addGenoSprite (x, y, spriteIndex, name) {
@@ -52,12 +53,13 @@ class BattleZone {
     }
 
     draw () {
+        if (this.needToBeRedraw) {
+            this.needToBeRedraw = false;
+            gameContainer.context.fillStyle = 'rgb(230, 200, 150)';
+            gameContainer.context.fillRect(0, 0, GAME.WIDTH, GAME.HEIGHT);
+        }
         const posX = (GAME.WIDTH - this.battlegroundWidth) * 0.5;
         const posY = (GAME.HEIGHT - this.battlegroundHeight) * 0.8;
-
-        gameContainer.context.fillStyle = 'rgb(230, 200, 150)';
-        gameContainer.context.fillRect(0, 0, GAME.WIDTH, GAME.HEIGHT);
-
         for (let y = 0; y < 3; y++) {
             for (let x = 0; x < 6; x++) {
                 this.tiles[y][x].draw(posX, posY);
@@ -69,11 +71,7 @@ class BattleZone {
      * Unselects the current selected GenoSprite and selects the next one.
      */
     nextGenoSprite () {
-        this.activeGenoSprite.isActive = false;
-        let x = this.activeTile.x;
-        let y = this.activeTile.y;
-
-        const genoSprite = this.searchNextGenoSprite(x, y);
+        const genoSprite = this.searchNextGenoSprite(this.activeTile.pos.x, this.activeTile.pos.y);
         if (genoSprite) {
             this.selectGenoSprite(genoSprite);
         }
@@ -118,9 +116,17 @@ class BattleZone {
     }
 
     selectGenoSprite (genoSprite) {
+        if (!genoSprite.playerTeam) {
+            return;
+        }
+        if (this.activeGenoSprite) {
+            if (this.activeGenoSprite === genoSprite) {
+                return;
+            }
+            this.activeGenoSprite.isActive = false;
+        }
         this.activeGenoSprite = genoSprite;
-        this.activeGenoSprite.isActive = true;
-        this.activeGenoSprite.displayDialogBox();
+        this.activeGenoSprite.select();
         this.activeTile = this.tiles[this.activeGenoSprite.position.y][this.activeGenoSprite.position.x];
     }
 

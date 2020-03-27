@@ -35,7 +35,14 @@ const SKILL_DATA = {
             "options": {
                 "selfTargeting": true
             }
-        }
+        },
+        "move": {
+            "name": "Move",
+            "icon": "🚶",
+            "categ": "physical",
+            "cost": 2,
+            "description": "The user move to an adjacent place."
+        },
     },
     "SELF": {
         "defend": {

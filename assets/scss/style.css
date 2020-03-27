@@ -61,6 +61,12 @@ body {
 }
 
 .dialog-box.choice-box ul li {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   min-width: 200px;
   border: 1px solid;
   border-top: none;
@@ -82,6 +88,10 @@ body {
 
 .dialog-box.choice-box ul li.selected {
   background-color: gold;
+}
+
+.dialog-box.choice-box ul li span.skill-name {
+  margin-right: 24px;
 }
 
 .dialog-box:not(.inactive) ul li {

@@ -21,4 +21,17 @@ class SpriteSheet {
         x = (host && host.x) || x;
         y = (host && host.y) || y;
     }
+
+    /**
+     * Calls a method when the sprite image is loaded.
+     *
+     * @param {function} callback
+     */
+    onLoad(callback) {
+        const _onLoad = this.image.onload;
+        this.image.onload = () => {
+            callback();
+            _onLoad();
+        };
+    }
 }

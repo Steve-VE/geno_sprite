@@ -24,10 +24,18 @@ class Choice {
     constructor (parent, params) {
         this.skill = params.skill;
         this.text = `${this.skill.icon} ${this.skill.name}`;
+
+        const choiceBody = document.createElement('span');
+        choiceBody.innerHTML = this.text;
+        choiceBody.classList.add('skill-name');
+        const choiceCost = document.createElement('span');
+        choiceCost.innerHTML = this.skill.cost;
+        choiceCost.classList.add('skill-cost');
+
         this.html = document.createElement('li');
-        const description = `${this.skill.name}\n${this.skill.description}\n\nCost: ${this.skill.cost}PE`;
-        this.html.title = description;
-        this.html.innerHTML = this.text;
+        this.html.title = this.getDescription();
+        this.html.append(choiceBody);
+        this.html.append(choiceCost);
 
         this.html.addEventListener('click', () => {
             if (this.isActive) {
@@ -37,6 +45,13 @@ class Choice {
         this.parent = parent;
         this.parent.choices.push(this);
         this.parent.list.appendChild(this.html);
+    }
+
+    getDescription () {
+        let description = `${this.skill.name}\n`;
+        description += `${this.skill.description}\n\n`;
+        description += `Cost: ${this.skill.cost}PE`;
+        return description;
     }
 
     get isActive () {

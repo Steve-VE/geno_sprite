@@ -10,6 +10,7 @@ class GameContainer {
 
         this.context.fillStyle = 'red';
         this.context.strokeStyle = 'black';
+        this.context.font = '16px "Squada One"';
 
         this.gameComponents = [];
 

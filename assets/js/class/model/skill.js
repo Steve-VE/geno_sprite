@@ -11,7 +11,8 @@ class Skill {
         this.cost = params.cost;
         this.power = params.power;
         this.numberOfTarget = params.numberOfTarget || 1;
-        this.canSelfTarget = options.selfTargeting || false;
+        this.canTargetSelf = options.selfTargeting || false;
+        this.canTargetGenoSprite = this.techName === 'move' ? false : true;
 
         skillList[this.techName] = this;
     }
@@ -96,8 +97,8 @@ class Skill {
         if (this.cost) {
             caster.pe -= this.cost;
         }
-        target.pv -= this.computeDamage(...arguments);
-        return Promise.resolve();
+        const damage = this.computeDamage(...arguments);
+        return target.takeDamage(damage);
     }
 }
 
@@ -124,7 +125,7 @@ class SelfTargetingSkill extends Skill {
     constructor (params) {
         super(params);
         this.numberOfTarget = 0;
-        this.canSelfTarget = true;
+        this.canTargetSelf = true;
     }
 
     /**

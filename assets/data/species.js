@@ -12,7 +12,7 @@ const SPECIE_DATA = {
             "spd": 10,
             "lck": 10
         },
-        "skill": ["punch", "defend", "focus"]
+        "skill": ["punch", "defend", "focus", "move"]
     },
     "smarty": {
         "name": "Smarty",
@@ -26,7 +26,7 @@ const SPECIE_DATA = {
             "spd": 8,
             "lck": 12
         },
-        "skill": ["psy_shock", "focus", "energizer"]
+        "skill": ["psy_shock", "focus", "energizer", "move"]
     },
     "magic_hat": {
         "name": "MagicHat",
@@ -40,7 +40,7 @@ const SPECIE_DATA = {
             "spd": 9,
             "lck": 14
         },
-        "skill": ["sparkle_pop", "energizer", "defend"]
+        "skill": ["sparkle_pop", "energizer", "defend", "move"]
     },
     "biter_bug": {
         "name": "BiterBug",

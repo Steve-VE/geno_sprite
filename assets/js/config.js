@@ -7,7 +7,7 @@ const GAME = {
     VERSION: '0.0.1',
     HEIGHT: window.innerHeight,
     WIDTH: window.innerWidth,
-    FRAMERATE: (1000 / 60),
+    FRAMERATE: (1000 / 30),
     DEBUG_MODE: Boolean(url.searchParams.get('debug')),
     BATTLE_SPRITE_RATIO: 0.4,
 };
