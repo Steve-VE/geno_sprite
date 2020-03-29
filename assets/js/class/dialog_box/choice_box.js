@@ -1,6 +1,6 @@
 
 class ChoiceBox extends DialogBox {
-    constructor (x, y, isDisplayed=true) {
+    constructor (params) {
         super(...arguments);
         this.list = document.createElement('ul');
         this.choices = [];
@@ -38,9 +38,10 @@ class Choice {
         this.html.append(choiceCost);
 
         this.html.addEventListener('click', () => {
-            if (this.isActive) {
-                this.toggle();
-            }
+            this.toggle();
+            // if (this.isActive) {
+            //     this.toggle();
+            // }
         });
         this.parent = parent;
         this.parent.choices.push(this);

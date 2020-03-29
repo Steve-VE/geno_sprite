@@ -13,8 +13,8 @@ const GAME = {
 };
 const tileSize = 32;
 const fightTile = {
-    width: 240,
-    height: 120
+    width: 220,
+    height: 80
 };
 
 const inputs = {

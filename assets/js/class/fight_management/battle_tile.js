@@ -13,8 +13,8 @@ class BattleTile {
         this.needToBeRedraw = true;
     }
 
-    draw (shiftX, shiftY) {
-        if (this.needToBeRedraw) {
+    draw (shiftX, shiftY, forced=false) {
+        if (this.needToBeRedraw || forced) {
             this.x = shiftX + (fightTile.width * this.pos.x);
             this.y = shiftY + (fightTile.height * this.pos.y);
             this.needToBeRedraw = false;
@@ -40,7 +40,7 @@ class BattleTile {
             );
         }
         if (this.genoSprite) {
-            this.genoSprite.draw(shiftX, shiftY);
+            this.genoSprite.draw(shiftX, shiftY, forced);
         }
     }
 

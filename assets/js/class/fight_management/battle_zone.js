@@ -13,8 +13,12 @@ class BattleZone {
         }
         this.battlegroundWidth = fightTile.width * 6;
         this.battlegroundHeight = fightTile.height * 3;
+        this.x = (GAME.WIDTH - this.battlegroundWidth) * 0.5;
+        // this.y = (GAME.HEIGHT - this.battlegroundHeight) * 0.8;
+        this.y = 120;
         this.skillStack = {};
         this.team = [[], []];
+        this.battleManagerBox = new BattleManagerBox();
         this.nbreOfActiveGenoSprites = 0;
         this.addGenoSprite(2, 0, '01', 'punch_boy');
         this.addGenoSprite(0, 1, '02', 'smarty');
@@ -36,10 +40,12 @@ class BattleZone {
             spriteIndex: spriteIndex,
             playerTeam: (teamIndex === 0),
         });
-        if (teamIndex === 0 && !this.activeGenoSprite) {
-            genoSprite.isActive = true;
-            this.activeGenoSprite = genoSprite;
-            this.activeTile = this.tiles[y][x];
+        if (teamIndex === 0){
+            this.battleManagerBox.track(genoSprite);
+            if (!this.activeGenoSprite) {
+                genoSprite.select();
+                this.activeTile = this.tiles[y][x];
+            }
         }
         this.nbreOfActiveGenoSprites++;
         this.team[teamIndex].push(genoSprite);
@@ -54,26 +60,33 @@ class BattleZone {
 
     draw () {
         if (this.needToBeRedraw) {
-            this.needToBeRedraw = false;
             gameContainer.context.fillStyle = 'rgb(230, 200, 150)';
             gameContainer.context.fillRect(0, 0, GAME.WIDTH, GAME.HEIGHT);
         }
-        const posX = (GAME.WIDTH - this.battlegroundWidth) * 0.5;
-        const posY = (GAME.HEIGHT - this.battlegroundHeight) * 0.8;
         for (let y = 0; y < 3; y++) {
             for (let x = 0; x < 6; x++) {
-                this.tiles[y][x].draw(posX, posY);
+                this.tiles[y][x].draw(this.x, this.y, this.needToBeRedraw);
             }
         }
+        this.needToBeRedraw = false;
     }
 
     /**
      * Unselects the current selected GenoSprite and selects the next one.
      */
     nextGenoSprite () {
-        const genoSprite = this.searchNextGenoSprite(this.activeTile.pos.x, this.activeTile.pos.y);
-        if (genoSprite) {
-            this.selectGenoSprite(genoSprite);
+        const readyGenoSpriteIds = Object.keys(this.skillStack);
+        for (const genoSprite of this.team[0]) {
+            if (genoSprite.pv <= 0) {
+                continue;
+            }
+            if (readyGenoSpriteIds.indexOf(genoSprite.id) === -1) {
+                genoSprite.select();
+                return;
+            }
+        }
+        if (this.state === 'skill_selection') {
+            this.state = 'fight_setup';
         }
     }
 
@@ -98,36 +111,16 @@ class BattleZone {
         }
     }
 
-    searchNextGenoSprite (x, y) {
-        x += 1;
-        if (x >= this.tiles[y].length) {
-            x = 0;
-            y += 1;
-        }
-        if (y >= this.tiles.length) {
-            return undefined;
-        }
-        const tile = this.tiles[y][x];
-        if (tile.genoSprite && tile.genoSprite.playerTeam) {
-            return tile.genoSprite;
-        } else {
-            return this.searchNextGenoSprite(x, y);
-        }
-    }
-
     selectGenoSprite (genoSprite) {
         if (!genoSprite.playerTeam) {
+            // Can't select an opponent GenoSprite.
             return;
         }
-        if (this.activeGenoSprite) {
-            if (this.activeGenoSprite === genoSprite) {
-                return;
-            }
-            this.activeGenoSprite.isActive = false;
+        if (this.activeGenoSprite === genoSprite) {
+            // Can't select the GenoSprite who is already selected.
+            return;
         }
-        this.activeGenoSprite = genoSprite;
-        this.activeGenoSprite.select();
-        this.activeTile = this.tiles[this.activeGenoSprite.position.y][this.activeGenoSprite.position.x];
+        genoSprite.select();
     }
 
     update () {
@@ -140,6 +133,7 @@ class BattleZone {
             for (const genoSprite of this.team[0]) {
                 genoSprite.hideDialogBox();
             }
+            this.activeGenoSprite.unselect();
 
             // Resolves skills' stack.
             const sortedSkills = [];
@@ -189,11 +183,9 @@ class BattleZone {
                 // No more skill in the stack, prepares to a new turn.
                 for (const genoSprite of this.team[0].concat(this.team[1])) {
                     genoSprite.pe += Math.round(genoSprite.peMax / 10);
-                    if (genoSprite.playerTeam) {
-                        genoSprite.resetDialogBox();
-                    }
+                    this.battleManagerBox.reset();
                 }
-                this.selectGenoSprite(this.team[0][0]);
+                this.nextGenoSprite();
                 this.opponentsMakeChoice();
                 this.state = 'skill_selection';
             }

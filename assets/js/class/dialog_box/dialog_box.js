@@ -1,20 +1,29 @@
 let activeDialogBox;
 
 class DialogBox {
-    constructor (x, y, isDisplayed=true, owner) {
+    constructor (params) {
+        params = params ||{};
         this.html = document.createElement('div');
-        this.html.classList.add('dialog-box');
-        this.place(x, y);
+
+        if (params.parent) {
+            this.parent = params.parent;
+        } else {
+            this.html.classList.add('dialog-box');
+            this.place(params.x || 0, params.y || 0);
+        }
         this.isDisplayed = false;
-        if (isDisplayed) {
+        if (params.isDisplayed) {
             this.display();
         }
         this.deactivate();
         this.title = '';
 
-        if (owner) {
-            this.setTitle(owner.name);
-            this.owner = owner;
+        if (params.owner) {
+            this.owner = params.owner;
+            this.html.dataset.genoSpriteId = this.owner.id;
+            if (!this.parent) {
+                this.setTitle(this.owner.name);
+            }
         }
     }
 
@@ -64,7 +73,7 @@ class DialogBox {
 
         title.addEventListener('click', () => {
             console.log('Click on ' + this.owner.name);
-            this.owner.displayDialogBox();
+            this.owner.select();
         });
 
         this.html.insertBefore(title, this.html.firstChild);

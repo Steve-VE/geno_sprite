@@ -36,10 +36,12 @@ class GenoSprite {
             this.skills.push(skillList[skillName]);
         }
         clickableElement.push(this);
-        this.needToBeRedraw = true;
+        // Wait the sprite is actually loaded before to draw the GenoSprite.
+        this.needToBeRedraw = false;
         this.sprite.onLoad(() => {
             this.needToBeRedraw = true;
         });
+        this.statBar = new StatBar(this, 50, 50 + 50 * __geno_sprite_count);
     }
 
     attachToTile (tile) {
@@ -48,9 +50,7 @@ class GenoSprite {
             y: tile.y,
         };
         tile.genoSprite = this;
-        if (this.playerTeam) {
-            this.displayDialogBox();
-        }
+        this.tile = tile;
     }
 
     choiceSkill () {
@@ -74,32 +74,34 @@ class GenoSprite {
     /**
      * Creates and displays the `DialogBox` to make the attac choice.
      */
-    displayDialogBox () {
-        // If the dialog box already exists, just activate it...
-        if (this.dialogBox) {
-            this.dialogBox.activate();
-        } else { // ...otherwise, creates a new one.
-            const dialogBox = new ChoiceBox(
-                40,
-                40 + (dialogBoxes.length * 200),
-                true,
-                this
-            );
-            for (const skill of this.skills) {
-                dialogBox.addChoice({
-                    skill: skill,
-                });
-            }
-            if (!activeDialogBox) {
-                dialogBox.activate();
-            }
-            dialogBoxes.push(DialogBox);
-            this.dialogBox = dialogBox;
-        }
+    displaySkillBox () {
+        const skillList = document.querySelector(`[data-geno-sprite-id="${this.id}"]`);
+        skillList.classList.remove('inactive');
+        // // If the dialog box already exists, just activate it...
+        // if (this.dialogBox) {
+        //     this.dialogBox.activate();
+        // } else { // ...otherwise, creates a new one.
+        //     const dialogBox = new ChoiceBox(
+        //         40,
+        //         40 + (dialogBoxes.length * 200),
+        //         true,
+        //         this
+        //     );
+        //     for (const skill of this.skills) {
+        //         dialogBox.addChoice({
+        //             skill: skill,
+        //         });
+        //     }
+        //     if (!activeDialogBox) {
+        //         dialogBox.activate();
+        //     }
+        //     dialogBoxes.push(DialogBox);
+        //     this.dialogBox = dialogBox;
+        // }
     }
 
-    draw (shiftX, shiftY) {
-        if (this.needToBeRedraw) {
+    draw (shiftX, shiftY, forced=false) {
+        if (this.needToBeRedraw || forced) {
             console.log(this.name + " is redraw");
             if (this.sprite.image.complete) {
                 this.needToBeRedraw = false;
@@ -111,7 +113,7 @@ class GenoSprite {
             let spriteWidth = this.sprite.width * GAME.BATTLE_SPRITE_RATIO;
             const spriteHeight = this.sprite.height * GAME.BATTLE_SPRITE_RATIO;
             posX += (fightTile.width - spriteWidth) / 2;
-            posY -= (fightTile.height  * 0.5);
+            posY -= (fightTile.height  * 1.2);
             if (GAME.DEBUG_MODE) {
                 gameContainer.context.strokeStyle = 'rgba(255, 0, 0, 0.2)';
                 gameContainer.context.strokeRect(
@@ -134,7 +136,7 @@ class GenoSprite {
             gameContainer.context.setTransform(1, 0, 0, 1, posX + (spriteWidth / 2), posY + (spriteHeight / 2));
             if (this.pv <= 0) {
                 const mirror = this.playerTeam ? -1 : 1;
-                gameContainer.context.rotate((45 * mirror) * Math.PI / 180);
+                gameContainer.context.rotate((90 * mirror) * Math.PI / 180);
             }
             gameContainer.context.drawImage(
                 this.sprite.image,
@@ -151,21 +153,6 @@ class GenoSprite {
             this.y = posY;
             this.width = spriteWidth;
             this.height = spriteHeight;
-
-            // Draw PV/PE bars.
-            gameContainer.context.fillStyle = '#333';
-            gameContainer.context.fillRect(posX, posY - 40, 80, 40);
-            gameContainer.context.fillText(`${this.pv} /${this.pvMax} PV`, posX + 84, posY - 25);
-            gameContainer.context.fillText(`${this.pe} /${this.peMax} PE`, posX + 84, posY - 5);
-            // PV
-            gameContainer.context.fillStyle = '#8ee06d';
-            gameContainer.context.fillRect(posX, posY - 40, (80 / this.pvMax * this.pv), 20);
-            // Temp Damage
-            gameContainer.context.fillStyle = '#c53d26';
-            gameContainer.context.fillRect(posX + (80 / this.pvMax * this.pv), posY - 40, (80 / this.pvMax * this.damage), 20);
-            // PE
-            gameContainer.context.fillStyle = '#7becff';
-            gameContainer.context.fillRect(posX, posY - 20, (80 / this.peMax * this.pe), 20);
         }
     }
 
@@ -202,18 +189,28 @@ class GenoSprite {
             }
         } else if (this.playerTeam) {
             // Click on a player's GenoSprite.
-            gameContainer.battleZone.selectGenoSprite(this);
+            this.select();
         }
     }
 
-    resetDialogBox () {
-        this.dialogBox.unselectChoice();
-        this.displayDialogBox();
+    select () {
+        if (gameContainer.battleZone.activeGenoSprite) {
+            gameContainer.battleZone.activeGenoSprite.unselect();
+        }
+        gameContainer.battleZone.activeGenoSprite = this;
+        gameContainer.battleZone.activeTile = this.tile;
+        this.isActive = true;
+        this.displaySkillBox();
+        gameContainer.battleZone.needToBeRedraw = true;
     }
 
-    select () {
-        this.isActive = true;
-        this.displayDialogBox();
+    unselect () {
+        if (gameContainer.battleZone.activeGenoSprite === this) {
+            gameContainer.battleZone.activeGenoSprite = undefined;
+        }
+        this.isActive = false;
+        const skillList = document.querySelector(`[data-geno-sprite-id="${this.id}"]`);
+        skillList.classList.add('inactive');
     }
 
     setStats () {
@@ -241,10 +238,15 @@ class GenoSprite {
     takeDamage (damage) {
         this.damage = damage;
         this.pv = Math.max(this.pv - damage, 0);
+        if (this.pv <= 0) {
+            this.needToBeRedraw = true;
+        }
+
+        this.statBar.setPv(this.pv);
 
         return new Promise((resolve, reject) => {
             let decreaseDamage = setInterval(() => {
-                this.needToBeRedraw = true;
+                // this.needToBeRedraw = true;
                 this.damage--;
                 if (this.damage <= 0) {
                     this.damage = 0;

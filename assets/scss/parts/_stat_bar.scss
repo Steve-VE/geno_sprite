@@ -1,0 +1,44 @@
+// .stat-bar {
+//     position: absolute;
+
+//     .bar {
+//         text-align: left;
+//         display: inline-block;
+//         height: 18px;
+//         margin-right: 8px;
+//         border: 1px solid black;
+//         border-bottom-width: 0px;
+//         background-color: #333;
+
+//         .gauge {
+//             display: inline-block;
+//             height: 100%;
+//             transition: width 0.5s;
+//         }
+//     }
+
+//     .label {
+//         display: inline-block;
+//         width: 60px;
+//         vertical-align: top;
+//         text-align: right;
+//     }
+
+//     .pv {
+//         .bar {
+//             width: 80px;
+//             .gauge {
+//                 background-color: #8ee06d;
+//             }
+//         }
+//     }
+
+//     .pe {
+//         .bar {
+//             width: 80px;
+//             background-color: #7becff;
+//             border-bottom-width: 1px;
+//             float: left;
+//         }
+//     }
+// }
