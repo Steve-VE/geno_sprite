@@ -1,8 +1,10 @@
 class BattleZone {
     constructor () {
         gameContainer.battleZone = this;
+        this.disclaimer = new Disclaimer();
 
         this.state = 'skill_selection';
+        this.turnCount = 0;
         this.tiles = [];
         for (let y = 0; y < 3; y++) {
             this.tiles[y] = [];
@@ -15,7 +17,7 @@ class BattleZone {
         this.battlegroundHeight = fightTile.height * 3;
         this.x = (GAME.WIDTH - this.battlegroundWidth) * 0.5;
         // this.y = (GAME.HEIGHT - this.battlegroundHeight) * 0.8;
-        this.y = 120;
+        this.y = 200;
         this.skillStack = {};
         this.team = [[], []];
         this.battleManagerBox = new BattleManagerBox();
@@ -111,6 +113,18 @@ class BattleZone {
         }
     }
 
+    prepareNewTurn () {
+        this.turnCount++;
+        // No more skill in the stack, prepares to a new turn.
+        for (const genoSprite of this.team[0].concat(this.team[1])) {
+            genoSprite.upkeep();
+        }
+        this.battleManagerBox.reset();
+        this.opponentsMakeChoice();
+        this.nextGenoSprite();
+        this.state = 'skill_selection';
+    }
+
     selectGenoSprite (genoSprite) {
         if (!genoSprite.playerTeam) {
             // Can't select an opponent GenoSprite.
@@ -169,26 +183,49 @@ class BattleZone {
                     const item = this.skillStack.splice(0, 1)[0];
                     const [priority, choice] = [item[0], item[1]];
                     let {caster, skill, target} = choice;
-                    if (caster.pv <= 0) {
+                    if (caster.canPayTheCost(skill)) {
+                        caster.payTheCost(skill);
+                    } else {
                         skill = skillList.do_nothing;
                     }
                     // Resolves the skill effect.
                     this.currentSkill = skill.resolveEffect(caster, target);
+                    const promMessage = this.disclaimer.setMessage(skill.getDisclaimer(caster, target));
 
-                    this.currentSkill.then(() => {
+                    Promise.all([this.currentSkill, promMessage]).then(() => {
                         this.currentSkill = undefined;
+
+                        if (this.skillStack.length === 0) {
+                            this.prepareNewTurn();
+                        }
                     });
                 }
-            } else {
-                // No more skill in the stack, prepares to a new turn.
-                for (const genoSprite of this.team[0].concat(this.team[1])) {
-                    genoSprite.pe += Math.round(genoSprite.peMax / 10);
-                    this.battleManagerBox.reset();
-                }
-                this.nextGenoSprite();
-                this.opponentsMakeChoice();
-                this.state = 'skill_selection';
             }
         }
+    }
+}
+
+class Disclaimer {
+    constructor () {
+        this.html = document.createElement('div');
+        this.html.classList.add('disclaimer');
+        this.message = document.createElement('div');
+        this.message.classList.add('message');
+        this.message.innerText = "Coucou Bilou !";
+        this.html.append(this.message);
+        document.body.append(this.html);
+    }
+
+    setMessage(msg) {
+        const prom = new Promise((resolve, reject) => {
+            this.message.innerHTML = msg;
+            this.message.addEventListener('animationend', () => {
+                this.message.innerHTML = '';
+                this.message.classList.remove('fade-out');
+                resolve();
+            });
+            this.message.classList.add('fade-out');
+        });
+        return prom;
     }
 }

@@ -7,7 +7,16 @@ const SKILL_DATA = {
             "categ": "physical",
             "cost": 5,
             "power": 8,
-            "description": "Bites the target."
+            "description": "Bites the target.",
+            "sentence": "{c} bites {t} !"
+        },
+        "one_punch_smash": {
+            "name": "One Punch Smash !",
+            "icon": "✊",
+            "categ": "physical",
+            "cost": 16,
+            "power": 999,
+            "description": "All you need to defeat your opponents. So boring..."
         },
         "psy_shock": {
             "name": "Psy Shock",
@@ -23,7 +32,7 @@ const SKILL_DATA = {
             "categ": "physical",
             "cost": 4,
             "power": 6,
-            "description": "Hits the target with the punch"
+            "description": "Hits the target with the punch."
         },
         "sparkle_pop": {
             "name": "Sparkle Pop",
@@ -50,12 +59,14 @@ const SKILL_DATA = {
             "icon": "🛡",
             "categ": "physical",
             "cost": 2,
-            "description": "The user protects himself to lower next damage.\nIneffective against cerebral attacks."
+            "description": "The user protects himself to lower next damage.\nIneffective against cerebral attacks.",
+            "sentence": "{c} protects himself !"
         },
         "do_nothing": {
             "name": "Do Nothing",
             "icon": "🤷",
-            "description": "Literally."
+            "description": "Literally.",
+            "sentence": "{c} does nothing..."
         },
         "energizer": {
             "name": "Energizer",

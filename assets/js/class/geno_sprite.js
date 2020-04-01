@@ -12,6 +12,8 @@ class GenoSprite {
         data = data || {};
         this.specie = specieList[data.specie];
         this.setStats();
+        this.status = [];
+        this.alterations = [];
 
         this.name = data.name || this.specie.name || 'unnamed';
         this.id = this.getUniqId();
@@ -53,6 +55,10 @@ class GenoSprite {
         this.tile = tile;
     }
 
+    canPayTheCost (skill) {
+        return this.pe >= skill.cost;
+    }
+
     choiceSkill () {
         const availableSkills = [];
         for (const skill of this.skills) {
@@ -75,29 +81,10 @@ class GenoSprite {
      * Creates and displays the `DialogBox` to make the attac choice.
      */
     displaySkillBox () {
-        const skillList = document.querySelector(`[data-geno-sprite-id="${this.id}"]`);
+        const skillList = document.querySelector(`.choice-box[data-geno-sprite-id="${this.id}"]`);
         skillList.classList.remove('inactive');
-        // // If the dialog box already exists, just activate it...
-        // if (this.dialogBox) {
-        //     this.dialogBox.activate();
-        // } else { // ...otherwise, creates a new one.
-        //     const dialogBox = new ChoiceBox(
-        //         40,
-        //         40 + (dialogBoxes.length * 200),
-        //         true,
-        //         this
-        //     );
-        //     for (const skill of this.skills) {
-        //         dialogBox.addChoice({
-        //             skill: skill,
-        //         });
-        //     }
-        //     if (!activeDialogBox) {
-        //         dialogBox.activate();
-        //     }
-        //     dialogBoxes.push(DialogBox);
-        //     this.dialogBox = dialogBox;
-        // }
+        const statContainer = document.querySelector(`.container[data-geno-sprite-id="${this.id}"]`);
+        statContainer.classList.add('selected');
     }
 
     draw (shiftX, shiftY, forced=false) {
@@ -157,14 +144,31 @@ class GenoSprite {
     }
 
     hideDialogBox () {
-        if (this.dialogBox) {
-            this.dialogBox.remove();
-        }
+        const skillList = document.querySelector(`[data-geno-sprite-id="${this.id}"]`);
+        skillList.classList.add('inactive');
+        const statContainer = document.querySelector(`.container[data-geno-sprite-id="${this.id}"]`);
+        statContainer.classList.remove('selected');
     }
 
     isClickedOn (x, y) {
         if (x < this.x || x > (this.x + this.width) || y < this.y || y > (this.y + this.height)) {
             return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the GenoSprite isn't under the given status.
+     *
+     * @param {string} statusName `techName` of a `Status`
+     * @returns {boolean} true if it isn't, false if it is.
+     */
+    isNot (statusName) {
+        const status = Status.get(statusName);
+        for (const genoSpriteStatus of this.status) {
+            if (status.techName === genoSpriteStatus.techName) {
+                return false;
+            }
         }
         return true;
     }
@@ -178,7 +182,8 @@ class GenoSprite {
     onClick () {
         if (gameContainer.battleZone.waitingSkill) {
             // Target a GenoSprite for a skill.
-            if (gameContainer.battleZone.waitingSkill.canTargetGenoSprite) {
+            // if (gameContainer.battleZone.waitingSkill.canTargetGenoSprite) {
+            if (gameContainer.battleZone.waitingSkill.canTarget(this)) {
                 if (gameContainer.battleZone.activeGenoSprite === this) {
                     if (gameContainer.battleZone.waitingSkill.canTargetSelf) {
                         gameContainer.battleZone.waitingSkill.resolveSelection(this);
@@ -191,6 +196,11 @@ class GenoSprite {
             // Click on a player's GenoSprite.
             this.select();
         }
+    }
+
+    payTheCost (skill) {
+        this.pe -= skill.cost;
+        this.statBar.updatePe();
     }
 
     select () {
@@ -209,8 +219,14 @@ class GenoSprite {
             gameContainer.battleZone.activeGenoSprite = undefined;
         }
         this.isActive = false;
-        const skillList = document.querySelector(`[data-geno-sprite-id="${this.id}"]`);
-        skillList.classList.add('inactive');
+        this.hideDialogBox();
+    }
+
+    upkeep () {
+        if (this.isNot('ko')) {
+            this.pe += Math.round(this.peMax / 10);
+            this.statBar.updatePe();
+        }
     }
 
     setStats () {
@@ -236,24 +252,27 @@ class GenoSprite {
      * @returns {Promise} resolved when the damage bar is empty.
      */
     takeDamage (damage) {
-        this.damage = damage;
-        this.pv = Math.max(this.pv - damage, 0);
-        if (this.pv <= 0) {
-            this.needToBeRedraw = true;
-        }
-
-        this.statBar.setPv(this.pv);
-
         return new Promise((resolve, reject) => {
-            let decreaseDamage = setInterval(() => {
-                // this.needToBeRedraw = true;
-                this.damage--;
-                if (this.damage <= 0) {
-                    this.damage = 0;
-                    clearInterval(decreaseDamage);
-                    resolve();
-                }
-            }, 30);
+
+            this.damage = damage;
+            const damageCount = document.createElement('div');
+            damageCount.innerText = damage;
+            damageCount.style.left = this.x;
+            damageCount.style.top = this.y;
+            damageCount.style.width = this.width;
+            damageCount.classList.add('damage');
+            damageCount.addEventListener('animationend', () => {
+                document.body.removeChild(damageCount);
+                resolve();
+            });
+            document.body.append(damageCount);
+
+            this.pv = Math.max(this.pv - damage, 0);
+            if (this.pv <= 0) {
+                this.status.push(Status.get('ko'));
+                this.needToBeRedraw = true;
+            }
+            this.statBar.updatePv();
         });
     }
 }

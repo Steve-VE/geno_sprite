@@ -3,6 +3,7 @@ const skillList = {};
 class Skill {
     constructor (params) {
         const options = params.options || {};
+        this.sentence = params && params.sentence;
         this.techName = params.techName;
         this.icon = params.icon;
         this.name = params.name;
@@ -15,6 +16,14 @@ class Skill {
         this.canTargetGenoSprite = this.techName === 'move' ? false : true;
 
         skillList[this.techName] = this;
+    }
+
+    canTarget (target) {
+        const caster = gameContainer.battleZone.activeGenoSprite;
+        if (target === caster) {
+            return this.canTargetSelf;
+        }
+        return target.isNot('ko');
     }
 
     /**
@@ -60,6 +69,18 @@ class Skill {
         return caster.spd;
     }
 
+    getDisclaimer (caster, target) {
+        let disclaimer = this.sentence;
+        if (!disclaimer) {
+            if (this.categ === 'magic') {
+                disclaimer = "{c} casts {s} on {t} !";
+            } else {
+                disclaimer = "{c} attacks {t} with {s} !";
+            }
+        }
+        return this._formatDisclaimer(disclaimer, ...arguments);
+    }
+
     /**
      * Is called when the skill is selected in the combat menu.
      *
@@ -98,7 +119,21 @@ class Skill {
             caster.pe -= this.cost;
         }
         const damage = this.computeDamage(...arguments);
-        return target.takeDamage(damage);
+        if (damage) {
+            return target.takeDamage(damage);
+        } else {
+            return Promise.resolve();
+        }
+    }
+
+    _formatDisclaimer (disclaimer, caster, target) {
+        const casterName = caster && `<span class='caster'>${caster.name}</span>`;
+        const targetName = target && `<span class='target'>${target.name}</span>`;
+        const skillName = `<span class='skill'>${this.name}</span>`;
+        disclaimer = disclaimer.replace('{c}', casterName);
+        disclaimer = disclaimer.replace('{t}', targetName);
+        disclaimer = disclaimer.replace('{s}', skillName);
+        return disclaimer;
     }
 }
 
@@ -132,6 +167,11 @@ class SelfTargetingSkill extends Skill {
      * @override
      */
     computeDamage () { return 0; }
+
+    getDisclaimer (caster) {
+        const disclaimer = this.sentence || "{c} casts {s} !";
+        return this._formatDisclaimer(disclaimer, ...arguments);
+    }
 
     /**
      * @override

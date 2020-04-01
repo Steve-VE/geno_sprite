@@ -12,7 +12,7 @@ const SPECIE_DATA = {
             "spd": 10,
             "lck": 10
         },
-        "skill": ["punch", "defend", "focus", "move"]
+        "skill": ["punch", "one_punch_smash", "defend", "focus", "move"]
     },
     "smarty": {
         "name": "Smarty",
@@ -46,7 +46,7 @@ const SPECIE_DATA = {
         "name": "BiterBug",
         "stat": {
             "pv": 50,
-            "pe": 50,
+            "pe": 70,
             "atk": 10,
             "def": 8,
             "psy": 2,

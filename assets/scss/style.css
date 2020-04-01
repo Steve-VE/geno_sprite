@@ -1,9 +1,13 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   font-family: 'Squada One', 'Courier New', Courier, monospace;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 
 ul {
@@ -18,7 +22,109 @@ body {
   cursor: pointer;
 }
 
+.disclaimer {
+  width: 800px;
+  height: 40px;
+  position: absolute;
+  left: 50%;
+}
+
+.disclaimer .message {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: -50%;
+  text-align: center;
+  font-size: 1.8em;
+  color: #efefef;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.disclaimer .message.fade-out {
+  -webkit-animation: slowFadeOut 2.4s;
+          animation: slowFadeOut 2.4s;
+}
+
+.disclaimer .message .caster, .disclaimer .message .target, .disclaimer .message .skill {
+  color: white;
+  font-size: 1.2em;
+}
+
+.damage {
+  position: absolute;
+  color: orange;
+  font-size: 1.2em;
+  text-align: center;
+  text-shadow: 2px 2px 1px rgba(75, 0, 0, 0.8), 2px -2px 1px rgba(75, 0, 0, 0.8), -2px 2px 1px rgba(75, 0, 0, 0.8), -2px -2px 1px rgba(75, 0, 0, 0.8);
+  -webkit-animation: goUp 1s;
+          animation: goUp 1s;
+}
+
+@-webkit-keyframes slowFadeOut {
+  0% {
+    opacity: 0%;
+  }
+  5% {
+    opacity: 100%;
+  }
+  80% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0%;
+  }
+}
+
+@keyframes slowFadeOut {
+  0% {
+    opacity: 0%;
+  }
+  5% {
+    opacity: 100%;
+  }
+  80% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0%;
+  }
+}
+
+@-webkit-keyframes goUp {
+  0% {
+    opacity: 100%;
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+  80% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0%;
+    -webkit-transform: translate(0, -50px);
+            transform: translate(0, -50px);
+  }
+}
+
+@keyframes goUp {
+  0% {
+    opacity: 100%;
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+  80% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0%;
+    -webkit-transform: translate(0, -50px);
+            transform: translate(0, -50px);
+  }
+}
+
 .battle-manager-box {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   margin-left: 40%;
   position: absolute;
@@ -26,6 +132,7 @@ body {
 }
 
 .battle-manager-box .skill-select-box {
+  background-color: white;
   border: 1px solid black;
 }
 
@@ -41,9 +148,13 @@ body {
 }
 
 .battle-manager-box .skill-select-box ul li {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   min-width: 200px;
-  justify-content: space-between;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   border: 1px solid;
   border-top: none;
   padding: 8px 16px;
@@ -83,10 +194,16 @@ body {
 }
 
 .battle-manager-box .stat-box .container {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   height: 60px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: white;
   border: 1px solid black;
+}
+
+.battle-manager-box .stat-box .container.selected {
+  background-color: gold;
 }
 
 .battle-manager-box .stat-box .container h3.name {
@@ -117,6 +234,7 @@ body {
 .battle-manager-box .stat-box .container .stat-bar .bar .gauge {
   display: inline-block;
   height: 100%;
+  -webkit-transition: width 0.5s;
   transition: width 0.5s;
 }
 
@@ -131,10 +249,8 @@ body {
   background-color: #8ee06d;
 }
 
-.battle-manager-box .stat-box .container .stat-bar .pe .bar {
+.battle-manager-box .stat-box .container .stat-bar .pe .bar .gauge {
   background-color: #7becff;
-  border-bottom-width: 1px;
-  float: left;
 }
 
 .dialog-box {
@@ -145,6 +261,8 @@ body {
 }
 
 .dialog-box h3 {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
   width: fit-content;
   font-size: 2.1em;
   padding: 8px;
@@ -152,7 +270,8 @@ body {
   text-align: left;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  box-shadow: 10px 10px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 10px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 10px 10px rgba(0, 0, 0, 0.2);
 }
 
 .dialog-box.choice-box {
@@ -166,14 +285,19 @@ body {
 
 .dialog-box.choice-box ul {
   background-color: white;
-  box-shadow: 10px 10px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 10px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 10px 10px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   padding: 8px;
 }
 
 .dialog-box.choice-box ul li {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-between;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   min-width: 200px;
   border: 1px solid;
   border-top: none;

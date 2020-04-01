@@ -23,14 +23,9 @@ class BattleManagerBox {
             parent: this,
             owner: genoSprite,
         });
-        // const choiceList = document.createElement('ul');
-        // choiceList.dataset.genoSpriteId = genoSprite.id;
         for (const skill of genoSprite.skills) {
             choiceBox.addChoice({skill: skill});
         }
-        // if (this.genoSprites.length === 1) {
-        //     choiceList.classList.add('active');
-        // }
         this.choiceBoxes.push(choiceBox);
         this.skillSelectionBox.append(choiceBox.html);
     }
@@ -54,6 +49,8 @@ class BattleManagerBox {
         name.innerText = genoSprite.name;
         const container = document.createElement('div');
         container.classList.add('container');
+        container.dataset.genoSpriteId = genoSprite.id;
+        container.addEventListener('click', genoSprite.select.bind(genoSprite));
         container.append(statBar.html, name);
         this.statBox.append(container);
 
