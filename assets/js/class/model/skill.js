@@ -13,17 +13,31 @@ class Skill {
         this.power = params.power;
         this.numberOfTarget = params.numberOfTarget || 1;
         this.canTargetSelf = options.selfTargeting || false;
-        this.canTargetGenoSprite = this.techName === 'move' ? false : true;
+        this.canTargetTile = options.canTargetTile || false;
+        if (options.canTargetGenoSprite !== undefined) {
+            this.canTargetGenoSprite = options.canTargetGenoSprite;
+        } else {
+            this.canTargetGenoSprite = true;
+        }
 
         skillList[this.techName] = this;
     }
 
     canTarget (target) {
         const caster = gameContainer.battleZone.activeGenoSprite;
-        if (target === caster) {
-            return this.canTargetSelf;
+        if (target instanceof GenoSprite) {
+            if (!this.canTargetGenoSprite) {
+                return false;
+            }
+            if (target === caster) {
+                return this.canTargetSelf;
+            }
+            return target.isNot('ko');
         }
-        return target.isNot('ko');
+        if (target instanceof BattleTile) {
+            return this.canTargetTile && target.isTargetable;
+        }
+        return false;
     }
 
     /**
@@ -60,6 +74,33 @@ class Skill {
         }
     }
 
+    defineAvailableTarget (caster) {
+        if (this.techName === 'move') {
+            const tiles = gameContainer.battleZone.tiles;
+            const x1 = Math.max(0, caster.position.x - 1);
+            const x2 = Math.min(tiles[0].length - 1, caster.position.x + 1);
+            const y1 = Math.max(0, caster.position.y - 1);
+            const y2 = Math.min(tiles.length - 1, caster.position.y + 1);
+            for (let y = y1; y <= y2; y++) {
+                for (let x = x1; x <= x2; x++) {
+                    const tile = tiles[y][x];
+                    if (tile.sameTeamAs(caster) && tile.isFree) {
+                        tile.isTargetable = true;
+                    }
+                }
+            }
+            refresh();
+        } else if (this.canTargetGenoSprite) {
+            for (const genoSprite of gameContainer.battleZone.genoSprites) {
+                if (genoSprite === caster) {
+                    genoSprite.isTargetable = this.canTargetSelf;
+                } else {
+                    genoSprite.isTargetable = true;
+                }
+            }
+        }
+    }
+
     /**
      * Returns how fast this skill wil be cast .
      *
@@ -86,8 +127,10 @@ class Skill {
      *
      * @param {GenoSprite} caster
      * @param {GenoSprite} target
+     * @returns {Promise} Resolved when the target is selected
      */
     isSelected (caster, target) {
+        gameContainer.battleZone.resetTargetable();
         if (target) {
             return Promise.resolve({
                 caster: caster,
@@ -95,13 +138,15 @@ class Skill {
                 target: target,
             });
         } else {
+            // Waiting for a target...
+            this.defineAvailableTarget(caster);
             gameContainer.battleZone.waitingSkill = this;
             const prom = new Promise((resolve, reject) => {
-                // Waiting for a target
                 this.resolveSelection = resolve;
                 this.rejectSelection = reject;
             });
             return prom.then((target) => {
+                gameContainer.battleZone.resetTargetable();
                 if (gameContainer.battleZone.waitingSkill === this) {
                     gameContainer.battleZone.waitingSkill = undefined;
                 }
@@ -116,13 +161,18 @@ class Skill {
 
     resolveEffect (caster, target) {
         if (this.cost) {
-            caster.pe -= this.cost;
+            caster.payTheCost(this);
         }
-        const damage = this.computeDamage(...arguments);
-        if (damage) {
-            return target.takeDamage(damage);
-        } else {
+        if (this.techName === 'move') {
+            caster.attachToTile(target);
             return Promise.resolve();
+        } else {
+            const damage = this.computeDamage(...arguments);
+            if (damage) {
+                return target.takeDamage(damage);
+            } else {
+                return Promise.resolve();
+            }
         }
     }
 

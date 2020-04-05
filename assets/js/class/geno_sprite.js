@@ -47,12 +47,17 @@ class GenoSprite {
     }
 
     attachToTile (tile) {
+        if (this.tile) {
+            this.tile.genoSprite = undefined;
+            this.tile = undefined;
+        }
         this.position = {
-            x: tile.x,
-            y: tile.y,
+            x: tile.pos.x,
+            y: tile.pos.y,
         };
         tile.genoSprite = this;
         this.tile = tile;
+        refresh();
     }
 
     canPayTheCost (skill) {
@@ -125,6 +130,11 @@ class GenoSprite {
                 const mirror = this.playerTeam ? -1 : 1;
                 gameContainer.context.rotate((90 * mirror) * Math.PI / 180);
             }
+
+            if (gameContainer.battleZone.waitingSkill && !this.isTargetable) {
+                gameContainer.context.filter = 'brightness(0.5)';
+            }
+
             gameContainer.context.drawImage(
                 this.sprite.image,
                 0, 0,
@@ -140,6 +150,9 @@ class GenoSprite {
             this.y = posY;
             this.width = spriteWidth;
             this.height = spriteHeight;
+            if (gameContainer.battleZone.waitingSkill && !this.isTargetable) {
+                gameContainer.context.filter = 'none';
+            }
         }
     }
 
@@ -148,6 +161,22 @@ class GenoSprite {
         skillList.classList.add('inactive');
         const statContainer = document.querySelector(`.container[data-geno-sprite-id="${this.id}"]`);
         statContainer.classList.remove('selected');
+    }
+
+    /**
+     * Checks if the GenoSprite is under the given status.
+     *
+     * @param {string} statusName `techName` of a `Status`
+     * @returns {boolean} true if it is, false if it isn't.
+     */
+    is (statusName) {
+        const status = Status.get(statusName);
+        for (const genoSpriteStatus of this.status) {
+            if (status.techName === genoSpriteStatus.techName) {
+                return true;
+            }
+        }
+        return false;
     }
 
     isClickedOn (x, y) {
@@ -180,17 +209,13 @@ class GenoSprite {
     }
 
     onClick () {
+        if (gameContainer.battleZone.state !== 'skill_selection') {
+            return;
+        }
         if (gameContainer.battleZone.waitingSkill) {
             // Target a GenoSprite for a skill.
-            // if (gameContainer.battleZone.waitingSkill.canTargetGenoSprite) {
             if (gameContainer.battleZone.waitingSkill.canTarget(this)) {
-                if (gameContainer.battleZone.activeGenoSprite === this) {
-                    if (gameContainer.battleZone.waitingSkill.canTargetSelf) {
-                        gameContainer.battleZone.waitingSkill.resolveSelection(this);
-                    }
-                } else {
-                    gameContainer.battleZone.waitingSkill.resolveSelection(this);
-                }
+                gameContainer.battleZone.waitingSkill.resolveSelection(this);
             }
         } else if (this.playerTeam) {
             // Click on a player's GenoSprite.
@@ -211,7 +236,7 @@ class GenoSprite {
         gameContainer.battleZone.activeTile = this.tile;
         this.isActive = true;
         this.displaySkillBox();
-        gameContainer.battleZone.needToBeRedraw = true;
+        refresh();
     }
 
     unselect () {
@@ -270,7 +295,7 @@ class GenoSprite {
             this.pv = Math.max(this.pv - damage, 0);
             if (this.pv <= 0) {
                 this.status.push(Status.get('ko'));
-                this.needToBeRedraw = true;
+                refresh();
             }
             this.statBar.updatePv();
         });

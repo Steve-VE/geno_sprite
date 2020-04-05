@@ -14,7 +14,10 @@ class BattleManagerBox {
 
         this.genoSprites = [];
 
-        this.html.append(this.skillSelectionBox, this.statBox);
+        this.container = document.createElement('div');
+        this.container.classList.add('container');
+        this.container.append(this.skillSelectionBox, this.statBox);
+        this.html.append(this.container);
         document.body.append(this.html);
     }
 

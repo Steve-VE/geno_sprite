@@ -14,7 +14,7 @@ const SKILL_DATA = {
             "name": "One Punch Smash !",
             "icon": "✊",
             "categ": "physical",
-            "cost": 16,
+            "cost": 12,
             "power": 999,
             "description": "All you need to defeat your opponents. So boring..."
         },
@@ -50,7 +50,12 @@ const SKILL_DATA = {
             "icon": "🚶",
             "categ": "physical",
             "cost": 2,
-            "description": "The user move to an adjacent place."
+            "description": "The user move to an adjacent place.",
+            "sentence": "{c} moves.",
+            "options": {
+                "canTargetGenoSprite": false,
+                "canTargetTile": true
+            }
         },
     },
     "SELF": {

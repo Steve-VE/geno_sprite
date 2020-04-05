@@ -73,13 +73,17 @@ class BattleZone {
         this.needToBeRedraw = false;
     }
 
+    get genoSprites () {
+        return this.team[0].concat(this.team[1]);
+    }
+
     /**
      * Unselects the current selected GenoSprite and selects the next one.
      */
     nextGenoSprite () {
         const readyGenoSpriteIds = Object.keys(this.skillStack);
         for (const genoSprite of this.team[0]) {
-            if (genoSprite.pv <= 0) {
+            if (genoSprite.is('ko')) {
                 continue;
             }
             if (readyGenoSpriteIds.indexOf(genoSprite.id) === -1) {
@@ -116,13 +120,26 @@ class BattleZone {
     prepareNewTurn () {
         this.turnCount++;
         // No more skill in the stack, prepares to a new turn.
-        for (const genoSprite of this.team[0].concat(this.team[1])) {
+        for (const genoSprite of this.genoSprites) {
             genoSprite.upkeep();
         }
         this.battleManagerBox.reset();
         this.opponentsMakeChoice();
         this.nextGenoSprite();
         this.state = 'skill_selection';
+    }
+
+    resetTargetable () {
+        this.waitingSkill = undefined;
+        for (let y = 0; y < 3; y++) {
+            for (let x = 0; x < 6; x++) {
+                this.tiles[y][x].isTargetable = false;
+            }
+        }
+        for (const genoSprite of this.genoSprites) {
+            genoSprite.isTargetable = false;
+        }
+        refresh();
     }
 
     selectGenoSprite (genoSprite) {
@@ -149,7 +166,7 @@ class BattleZone {
             }
             this.activeGenoSprite.unselect();
 
-            // Resolves skills' stack.
+            // Sorts the skills' stack to resolve faster skill before.
             const sortedSkills = [];
             for (const data of Object.entries(this.skillStack)) {
                 const skillChoice = data[1];
@@ -183,14 +200,18 @@ class BattleZone {
                     const item = this.skillStack.splice(0, 1)[0];
                     const [priority, choice] = [item[0], item[1]];
                     let {caster, skill, target} = choice;
-                    if (caster.canPayTheCost(skill)) {
-                        caster.payTheCost(skill);
-                    } else {
-                        skill = skillList.do_nothing;
+                    let promMessage = Promise.resolve();
+                    // The GenoSprite can act only if it isn't KO.
+                    if (caster.isNot('ko')) {
+                        // If the GenoSprite can't cast anymore the selected skill,
+                        // it will do nothing instead.
+                        if (!caster.canPayTheCost(skill)) {
+                            skill = skillList.do_nothing;
+                        }
+                        // Resolves the skill effect.
+                        this.currentSkill = skill.resolveEffect(caster, target);
+                        promMessage = this.disclaimer.setMessage(skill.getDisclaimer(caster, target));
                     }
-                    // Resolves the skill effect.
-                    this.currentSkill = skill.resolveEffect(caster, target);
-                    const promMessage = this.disclaimer.setMessage(skill.getDisclaimer(caster, target));
 
                     Promise.all([this.currentSkill, promMessage]).then(() => {
                         this.currentSkill = undefined;

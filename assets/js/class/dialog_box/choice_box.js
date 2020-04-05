@@ -84,5 +84,6 @@ class Choice {
     unselect () {
         this.isSelected = false;
         this.html.classList.remove('selected');
+        gameContainer.battleZone.resetTargetable();
     }
 }
