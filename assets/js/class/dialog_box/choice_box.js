@@ -60,10 +60,12 @@ class Choice {
     }
 
     toggle () {
-        if (this.isSelected) {
-            this.unselect();
-        } else {
-            this.select();
+        if (gameContainer.battleZone.state === 'skill_selection') {
+            if (this.isSelected) {
+                this.unselect();
+            } else {
+                this.select();
+            }
         }
     }
 

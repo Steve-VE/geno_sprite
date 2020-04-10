@@ -87,6 +87,7 @@ class GenoSprite {
      */
     displaySkillBox () {
         const skillList = document.querySelector(`.choice-box[data-geno-sprite-id="${this.id}"]`);
+        skillList.classList.remove('hidden');
         skillList.classList.remove('inactive');
         const statContainer = document.querySelector(`.container[data-geno-sprite-id="${this.id}"]`);
         statContainer.classList.add('selected');
@@ -158,7 +159,11 @@ class GenoSprite {
 
     hideDialogBox () {
         const skillList = document.querySelector(`[data-geno-sprite-id="${this.id}"]`);
-        skillList.classList.add('inactive');
+        if (gameContainer.battleZone.state === 'fight_setup') {
+            skillList.classList.add('inactive');
+        } else {
+            skillList.classList.add('hidden');
+        }
         const statContainer = document.querySelector(`.container[data-geno-sprite-id="${this.id}"]`);
         statContainer.classList.remove('selected');
     }
@@ -229,6 +234,9 @@ class GenoSprite {
     }
 
     select () {
+        if (gameContainer.battleZone.state !== 'skill_selection') {
+            return;
+        }
         if (gameContainer.battleZone.activeGenoSprite) {
             gameContainer.battleZone.activeGenoSprite.unselect();
         }

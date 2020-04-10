@@ -217,6 +217,7 @@ class BattleZone {
                         this.currentSkill = undefined;
 
                         if (this.skillStack.length === 0) {
+                            this.state = 'prepare_next_turn';
                             this.prepareNewTurn();
                         }
                     });

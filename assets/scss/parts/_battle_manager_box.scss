@@ -10,7 +10,7 @@ $bar-height: $line-height / 2;
     height: $line-height * 3;
     position: absolute;
     left: 50%;
-    bottom: 2;
+    bottom: 1;
 
     & > .container{
         width: 100%;
@@ -23,18 +23,28 @@ $bar-height: $line-height / 2;
             width: 50%;
             background-color: $color-background;
             border: 1px solid black;
+            overflow: hidden;
 
             .choice-box {
                 &.inactive {
+                    ul {
+                        li {
+                            cursor: default;
+                            background-color: #555;
+                            color: #333;
+                        }
+                    }
+                }
+
+                &.hidden {
                     display: none;
                 }
             }
 
             ul {
+                display: block;
                 height: $line-height * 3;
                 overflow-y: scroll;
-
-                display: block;
 
                 li {
                     display: flex;
@@ -101,10 +111,14 @@ $bar-height: $line-height / 2;
                     display: inline-block;
                     height: 100%;
 
+                    .pv, .pe {
+                        height: 50%;
+                    }
+
                     .bar {
                         display: inline-block;
                         width: 80px;
-                        height: $bar-height;
+                        height: 100%;
                         border: 1px solid black;
                         border-top: none;
                         background-color: #333;
